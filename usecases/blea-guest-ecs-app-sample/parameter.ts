@@ -41,7 +41,7 @@ export const devParameter: AppParameter = {
   monitoringNotifyEmail: 'nan.bingjun@shinko-1930.co.jp',
   monitoringSlackWorkspaceId: 'T0469K9DY21',
   monitoringSlackChannelId: 'C048Q97BYHG',
-  vpcCidr: '10.0.0.0/16',
+  vpcCidr: '10.100.0.0/16',
   dashboardName: 'BLEA-ECS-App-Sample',
 
   // -- Sample to use custom domain on CloudFront
