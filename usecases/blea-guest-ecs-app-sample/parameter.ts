@@ -39,8 +39,8 @@ export const devParameter: AppParameter = {
   },
   envName: 'dev',
   monitoringNotifyEmail: 'nan.bingjun@shinko-1930.co.jp',
-  monitoringSlackWorkspaceId: 'TXXXXXXXX',
-  monitoringSlackChannelId: 'CXXXXXXXX',
+  monitoringSlackWorkspaceId: 'T0469K9DY21',
+  monitoringSlackChannelId: 'C048Q97BYHG',
   vpcCidr: '10.0.0.0/16',
   dashboardName: 'BLEA-ECS-App-Sample',
 
