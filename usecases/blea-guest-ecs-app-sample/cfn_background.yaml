@@ -1,0 +1,2090 @@
+Description: BLEA ECS App sample for guest accounts (uksb-1tupboc58) (tag:blea-guest-ecs-app-sample-backend)
+Resources:
+  MonitoringAlarmTopicAF62D4F1:
+    Type: AWS::SNS::Topic
+    Metadata:
+      aws:cdk:path: Dev-BLEAEcsApp/Monitoring/AlarmTopic/Resource
+  MonitoringAlarmTopicPolicyCB9CCFB0:
+    Type: AWS::SNS::TopicPolicy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Action: sns:Publish
+            Effect: Allow
+            Principal:
+              Service: cloudwatch.amazonaws.com
+            Resource:
+              Ref: MonitoringAlarmTopicAF62D4F1
+            Sid: "0"
+          - Action: sns:Publish
+            Effect: Allow
+            Principal:
+              Service: events.amazonaws.com
+            Resource:
+              Ref: MonitoringAlarmTopicAF62D4F1
+            Sid: "1"
+        Version: "2012-10-17"
+      Topics:
+        - Ref: MonitoringAlarmTopicAF62D4F1
+    Metadata:
+      aws:cdk:path: Dev-BLEAEcsApp/Monitoring/AlarmTopic/Policy/Resource
+  MonitoringEmailSubsc6D15C956:
+    Type: AWS::SNS::Subscription
+    Properties:
+      Endpoint: nan.bingjun@shinko-1930.co.jp
+      Protocol: email
+      TopicArn:
+        Ref: MonitoringAlarmTopicAF62D4F1
+    Metadata:
+      aws:cdk:path: Dev-BLEAEcsApp/Monitoring/EmailSubsc/Resource
+  MonitoringChatbotRoleD766A77D:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: chatbot.amazonaws.com
+        Version: "2012-10-17"
+      ManagedPolicyArns:
+        - Fn::Join:
+            - ""
+            - - "arn:"
+              - Ref: AWS::Partition
+              - :iam::aws:policy/ReadOnlyAccess
+        - Fn::Join:
+            - ""
+            - - "arn:"
+              - Ref: AWS::Partition
+              - :iam::aws:policy/CloudWatchReadOnlyAccess
+    Metadata:
+      aws:cdk:path: Dev-BLEAEcsApp/Monitoring/ChatbotRole/Resource
+  MonitoringChatbotChannel3696F0E4:
+    Type: AWS::Chatbot::SlackChannelConfiguration
+    Properties:
+      ConfigurationName: DevBLEAEcsAppMonitoringEA1D1433
+      IamRoleArn:
+        Fn::GetAtt:
+          - MonitoringChatbotRoleD766A77D
+          - Arn
+      SlackChannelId: C06F120Q2F7
+      SlackWorkspaceId: T0469K9DY21
+      SnsTopicArns:
+        - Ref: MonitoringAlarmTopicAF62D4F1
+    Metadata:
+      aws:cdk:path: Dev-BLEAEcsApp/Monitoring/ChatbotChannel
+  CMK56817A4C:
+    Type: AWS::KMS::Key
+    Properties:
+      Description: "BLEA Guest Sample: CMK for EcsApp"
+      EnableKeyRotation: true
+      KeyPolicy:
+        Statement:
+          - Action: kms:*
+            Effect: Allow
+            Principal:
+              AWS:
+                Fn::Join:
+                  - ""
+                  - - "arn:"
+                    - Ref: AWS::Partition
+                    - :iam::818740031270:root
+            Resource: "*"
+          - Action:
+              - kms:Encrypt*
+              - kms:Decrypt*
+              - kms:ReEncrypt*
+              - kms:GenerateDataKey*
+              - kms:Describe*
+            Condition:
+              ArnLike:
+                kms:EncryptionContext:aws:logs:arn: arn:aws:logs:us-east-2:818740031270:*
+            Effect: Allow
+            Principal:
+              Service: logs.us-east-2.amazonaws.com
+            Resource: "*"
+        Version: "2012-10-17"
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain
+    Metadata:
+      aws:cdk:path: Dev-BLEAEcsApp/CMK/Resource
+  CMKAliasFD5A95C9:
+    Type: AWS::KMS::Alias
+    Properties:
+      AliasName: alias/DevBLEAEcsApp
+      TargetKeyId:
+        Fn::GetAtt:
+          - CMK56817A4C
+          - Arn
+    Metadata:
+      aws:cdk:path: Dev-BLEAEcsApp/CMK/Alias/Resource
+  NetworkingVpc6B5E6F44:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.100.0.0/16
+      EnableDnsHostnames: true
+      EnableDnsSupport: true
+      InstanceTenancy: default
+      Tags:
+        - Key: Name
+          Value: Dev-BLEAEcsApp/Networking/Vpc
+    Metadata:
+      aws:cdk:path: Dev-BLEAEcsApp/Networking/Vpc/Resource
+  NetworkingVpcPublicSubnet1Subnet918289EE:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: us-east-2a
+      CidrBlock: 10.100.0.0/24
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: aws-cdk:subnet-name
+          Value: Public
+        - Key: aws-cdk:subnet-type
+          Value: Public
+        - Key: Name
+          Value: Dev-BLEAEcsApp/Networking/Vpc/PublicSubnet1
+      VpcId:
+        Ref: NetworkingVpc6B5E6F44
+    Metadata:
+      aws:cdk:path: Dev-BLEAEcsApp/Networking/Vpc/PublicSubnet1/Subnet
+  NetworkingVpcPublicSubnet1RouteTable8FB3C18A:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      Tags:
+        - Key: Name
+          Value: Dev-BLEAEcsApp/Networking/Vpc/PublicSubnet1
+      VpcId:
+        Ref: NetworkingVpc6B5E6F44
+    Metadata:
+      aws:cdk:path: Dev-BLEAEcsApp/Networking/Vpc/PublicSubnet1/RouteTable
+  NetworkingVpcPublicSubnet1RouteTableAssociationD13830EA:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId:
+        Ref: NetworkingVpcPublicSubnet1RouteTable8FB3C18A
+      SubnetId:
+        Ref: NetworkingVpcPublicSubnet1Subnet918289EE
+    Metadata:
+      aws:cdk:path: Dev-BLEAEcsApp/Networking/Vpc/PublicSubnet1/RouteTableAssociation
+  NetworkingVpcPublicSubnet1DefaultRoute80C01FA6:
+    Type: AWS::EC2::Route
+    Properties:
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId:
+        Ref: NetworkingVpcIGW21218DAB
+      RouteTableId:
+        Ref: NetworkingVpcPublicSubnet1RouteTable8FB3C18A
+    DependsOn:
+      - NetworkingVpcVPCGW12E561D8
+    Metadata:
+      aws:cdk:path: Dev-BLEAEcsApp/Networking/Vpc/PublicSubnet1/DefaultRoute
+  NetworkingVpcPublicSubnet1EIP7D5353EC:
+    Type: AWS::EC2::EIP
+    Properties:
+      Domain: vpc
+      Tags:
+        - Key: Name
+          Value: Dev-BLEAEcsApp/Networking/Vpc/PublicSubnet1
+    Metadata:
+      aws:cdk:path: Dev-BLEAEcsApp/Networking/Vpc/PublicSubnet1/EIP
+  NetworkingVpcPublicSubnet1NATGateway70EEEC07:
+    Type: AWS::EC2::NatGateway
+    Properties:
+      AllocationId:
+        Fn::GetAtt:
+          - NetworkingVpcPublicSubnet1EIP7D5353EC
+          - AllocationId
+      SubnetId:
+        Ref: NetworkingVpcPublicSubnet1Subnet918289EE
+      Tags:
+        - Key: Name
+          Value: Dev-BLEAEcsApp/Networking/Vpc/PublicSubnet1
+    DependsOn:
+      - NetworkingVpcPublicSubnet1DefaultRoute80C01FA6
+      - NetworkingVpcPublicSubnet1RouteTableAssociationD13830EA
+    Metadata:
+      aws:cdk:path: Dev-BLEAEcsApp/Networking/Vpc/PublicSubnet1/NATGateway
+  NetworkingVpcPublicSubnet2Subnet9D9E5AFB:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: us-east-2b
+      CidrBlock: 10.100.1.0/24
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: aws-cdk:subnet-name
+          Value: Public
+        - Key: aws-cdk:subnet-type
+          Value: Public
+        - Key: Name
+          Value: Dev-BLEAEcsApp/Networking/Vpc/PublicSubnet2
+      VpcId:
+        Ref: NetworkingVpc6B5E6F44
+    Metadata:
+      aws:cdk:path: Dev-BLEAEcsApp/Networking/Vpc/PublicSubnet2/Subnet
+  NetworkingVpcPublicSubnet2RouteTable22886677:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      Tags:
+        - Key: Name
+          Value: Dev-BLEAEcsApp/Networking/Vpc/PublicSubnet2
+      VpcId:
+        Ref: NetworkingVpc6B5E6F44
+    Metadata:
+      aws:cdk:path: Dev-BLEAEcsApp/Networking/Vpc/PublicSubnet2/RouteTable
+  NetworkingVpcPublicSubnet2RouteTableAssociation2D4CEA06:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId:
+        Ref: NetworkingVpcPublicSubnet2RouteTable22886677
+      SubnetId:
+        Ref: NetworkingVpcPublicSubnet2Subnet9D9E5AFB
+    Metadata:
+      aws:cdk:path: Dev-BLEAEcsApp/Networking/Vpc/PublicSubnet2/RouteTableAssociation
+  NetworkingVpcPublicSubnet2DefaultRouteDF98F60F:
+    Type: AWS::EC2::Route
+    Properties:
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId:
+        Ref: NetworkingVpcIGW21218DAB
+      RouteTableId:
+        Ref: NetworkingVpcPublicSubnet2RouteTable22886677
+    DependsOn:
+      - NetworkingVpcVPCGW12E561D8
+    Metadata:
+      aws:cdk:path: Dev-BLEAEcsApp/Networking/Vpc/PublicSubnet2/DefaultRoute
+  NetworkingVpcPrivateSubnet1Subnet717BCE48:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: us-east-2a
+      CidrBlock: 10.100.4.0/22
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: aws-cdk:subnet-name
+          Value: Private
+        - Key: aws-cdk:subnet-type
+          Value: Private
+        - Key: Name
+          Value: Dev-BLEAEcsApp/Networking/Vpc/PrivateSubnet1
+      VpcId:
+        Ref: NetworkingVpc6B5E6F44
+    Metadata:
+      aws:cdk:path: Dev-BLEAEcsApp/Networking/Vpc/PrivateSubnet1/Subnet
+  NetworkingVpcPrivateSubnet1RouteTable69CC9A73:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      Tags:
+        - Key: Name
+          Value: Dev-BLEAEcsApp/Networking/Vpc/PrivateSubnet1
+      VpcId:
+        Ref: NetworkingVpc6B5E6F44
+    Metadata:
+      aws:cdk:path: Dev-BLEAEcsApp/Networking/Vpc/PrivateSubnet1/RouteTable
+  NetworkingVpcPrivateSubnet1RouteTableAssociation761725EA:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId:
+        Ref: NetworkingVpcPrivateSubnet1RouteTable69CC9A73
+      SubnetId:
+        Ref: NetworkingVpcPrivateSubnet1Subnet717BCE48
+    Metadata:
+      aws:cdk:path: Dev-BLEAEcsApp/Networking/Vpc/PrivateSubnet1/RouteTableAssociation
+  NetworkingVpcPrivateSubnet1DefaultRouteDE58E6A0:
+    Type: AWS::EC2::Route
+    Properties:
+      DestinationCidrBlock: 0.0.0.0/0
+      NatGatewayId:
+        Ref: NetworkingVpcPublicSubnet1NATGateway70EEEC07
+      RouteTableId:
+        Ref: NetworkingVpcPrivateSubnet1RouteTable69CC9A73
+    Metadata:
+      aws:cdk:path: Dev-BLEAEcsApp/Networking/Vpc/PrivateSubnet1/DefaultRoute
+  NetworkingVpcPrivateSubnet2Subnet4313381B:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: us-east-2b
+      CidrBlock: 10.100.8.0/22
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: aws-cdk:subnet-name
+          Value: Private
+        - Key: aws-cdk:subnet-type
+          Value: Private
+        - Key: Name
+          Value: Dev-BLEAEcsApp/Networking/Vpc/PrivateSubnet2
+      VpcId:
+        Ref: NetworkingVpc6B5E6F44
+    Metadata:
+      aws:cdk:path: Dev-BLEAEcsApp/Networking/Vpc/PrivateSubnet2/Subnet
+  NetworkingVpcPrivateSubnet2RouteTableAE92CE40:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      Tags:
+        - Key: Name
+          Value: Dev-BLEAEcsApp/Networking/Vpc/PrivateSubnet2
+      VpcId:
+        Ref: NetworkingVpc6B5E6F44
+    Metadata:
+      aws:cdk:path: Dev-BLEAEcsApp/Networking/Vpc/PrivateSubnet2/RouteTable
+  NetworkingVpcPrivateSubnet2RouteTableAssociation9EFBB61D:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId:
+        Ref: NetworkingVpcPrivateSubnet2RouteTableAE92CE40
+      SubnetId:
+        Ref: NetworkingVpcPrivateSubnet2Subnet4313381B
+    Metadata:
+      aws:cdk:path: Dev-BLEAEcsApp/Networking/Vpc/PrivateSubnet2/RouteTableAssociation
+  NetworkingVpcPrivateSubnet2DefaultRoute5BF16047:
+    Type: AWS::EC2::Route
+    Properties:
+      DestinationCidrBlock: 0.0.0.0/0
+      NatGatewayId:
+        Ref: NetworkingVpcPublicSubnet1NATGateway70EEEC07
+      RouteTableId:
+        Ref: NetworkingVpcPrivateSubnet2RouteTableAE92CE40
+    Metadata:
+      aws:cdk:path: Dev-BLEAEcsApp/Networking/Vpc/PrivateSubnet2/DefaultRoute
+  NetworkingVpcProtectedSubnet1SubnetF97DE33B:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: us-east-2a
+      CidrBlock: 10.100.12.0/22
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: aws-cdk:subnet-name
+          Value: Protected
+        - Key: aws-cdk:subnet-type
+          Value: Isolated
+        - Key: Name
+          Value: Dev-BLEAEcsApp/Networking/Vpc/ProtectedSubnet1
+      VpcId:
+        Ref: NetworkingVpc6B5E6F44
+    Metadata:
+      aws:cdk:path: Dev-BLEAEcsApp/Networking/Vpc/ProtectedSubnet1/Subnet
+  NetworkingVpcProtectedSubnet1RouteTable2C1558E9:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      Tags:
+        - Key: Name
+          Value: Dev-BLEAEcsApp/Networking/Vpc/ProtectedSubnet1
+      VpcId:
+        Ref: NetworkingVpc6B5E6F44
+    Metadata:
+      aws:cdk:path: Dev-BLEAEcsApp/Networking/Vpc/ProtectedSubnet1/RouteTable
+  NetworkingVpcProtectedSubnet1RouteTableAssociation011790AB:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId:
+        Ref: NetworkingVpcProtectedSubnet1RouteTable2C1558E9
+      SubnetId:
+        Ref: NetworkingVpcProtectedSubnet1SubnetF97DE33B
+    Metadata:
+      aws:cdk:path: Dev-BLEAEcsApp/Networking/Vpc/ProtectedSubnet1/RouteTableAssociation
+  NetworkingVpcProtectedSubnet2SubnetE110C692:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: us-east-2b
+      CidrBlock: 10.100.16.0/22
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: aws-cdk:subnet-name
+          Value: Protected
+        - Key: aws-cdk:subnet-type
+          Value: Isolated
+        - Key: Name
+          Value: Dev-BLEAEcsApp/Networking/Vpc/ProtectedSubnet2
+      VpcId:
+        Ref: NetworkingVpc6B5E6F44
+    Metadata:
+      aws:cdk:path: Dev-BLEAEcsApp/Networking/Vpc/ProtectedSubnet2/Subnet
+  NetworkingVpcProtectedSubnet2RouteTableA434E57C:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      Tags:
+        - Key: Name
+          Value: Dev-BLEAEcsApp/Networking/Vpc/ProtectedSubnet2
+      VpcId:
+        Ref: NetworkingVpc6B5E6F44
+    Metadata:
+      aws:cdk:path: Dev-BLEAEcsApp/Networking/Vpc/ProtectedSubnet2/RouteTable
+  NetworkingVpcProtectedSubnet2RouteTableAssociation01AFDB7E:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId:
+        Ref: NetworkingVpcProtectedSubnet2RouteTableA434E57C
+      SubnetId:
+        Ref: NetworkingVpcProtectedSubnet2SubnetE110C692
+    Metadata:
+      aws:cdk:path: Dev-BLEAEcsApp/Networking/Vpc/ProtectedSubnet2/RouteTableAssociation
+  NetworkingVpcIGW21218DAB:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+        - Key: Name
+          Value: Dev-BLEAEcsApp/Networking/Vpc
+    Metadata:
+      aws:cdk:path: Dev-BLEAEcsApp/Networking/Vpc/IGW
+  NetworkingVpcVPCGW12E561D8:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      InternetGatewayId:
+        Ref: NetworkingVpcIGW21218DAB
+      VpcId:
+        Ref: NetworkingVpc6B5E6F44
+    Metadata:
+      aws:cdk:path: Dev-BLEAEcsApp/Networking/Vpc/VPCGW
+  NetworkingVpcFlowLogsFlowLog7DF32A67:
+    Type: AWS::EC2::FlowLog
+    Properties:
+      LogDestination:
+        Fn::GetAtt:
+          - NetworkingFlowLogBucket33187957
+          - Arn
+      LogDestinationType: s3
+      ResourceId:
+        Ref: NetworkingVpc6B5E6F44
+      ResourceType: VPC
+      Tags:
+        - Key: Name
+          Value: Dev-BLEAEcsApp/Networking/Vpc/FlowLogs
+      TrafficType: ALL
+    DependsOn:
+      - NetworkingFlowLogBucketPolicy1EE356A6
+    Metadata:
+      aws:cdk:path: Dev-BLEAEcsApp/Networking/Vpc/FlowLogs/FlowLog
+  NetworkingVpcS3GWEndpointA935E1AA:
+    Type: AWS::EC2::VPCEndpoint
+    Properties:
+      RouteTableIds:
+        - Ref: NetworkingVpcPrivateSubnet1RouteTable69CC9A73
+        - Ref: NetworkingVpcPrivateSubnet2RouteTableAE92CE40
+        - Ref: NetworkingVpcProtectedSubnet1RouteTable2C1558E9
+        - Ref: NetworkingVpcProtectedSubnet2RouteTableA434E57C
+      ServiceName:
+        Fn::Join:
+          - ""
+          - - com.amazonaws.
+            - Ref: AWS::Region
+            - .s3
+      VpcEndpointType: Gateway
+      VpcId:
+        Ref: NetworkingVpc6B5E6F44
+    Metadata:
+      aws:cdk:path: Dev-BLEAEcsApp/Networking/Vpc/S3GWEndpoint/Resource
+  NetworkingVpcSsmEndpointSecurityGroup897B24DC:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Dev-BLEAEcsApp/Networking/Vpc/SsmEndpoint/SecurityGroup
+      SecurityGroupEgress:
+        - CidrIp: 0.0.0.0/0
+          Description: Allow all outbound traffic by default
+          IpProtocol: "-1"
+      SecurityGroupIngress:
+        - CidrIp:
+            Fn::GetAtt:
+              - NetworkingVpc6B5E6F44
+              - CidrBlock
+          Description:
+            Fn::Join:
+              - ""
+              - - "from "
+                - Fn::GetAtt:
+                    - NetworkingVpc6B5E6F44
+                    - CidrBlock
+                - :443
+          FromPort: 443
+          IpProtocol: tcp
+          ToPort: 443
+      Tags:
+        - Key: Name
+          Value: Dev-BLEAEcsApp/Networking/Vpc
+      VpcId:
+        Ref: NetworkingVpc6B5E6F44
+    Metadata:
+      aws:cdk:path: Dev-BLEAEcsApp/Networking/Vpc/SsmEndpoint/SecurityGroup/Resource
+  NetworkingVpcSsmEndpoint054488E3:
+    Type: AWS::EC2::VPCEndpoint
+    Properties:
+      PrivateDnsEnabled: true
+      SecurityGroupIds:
+        - Fn::GetAtt:
+            - NetworkingVpcSsmEndpointSecurityGroup897B24DC
+            - GroupId
+      ServiceName: com.amazonaws.us-east-2.ssm
+      SubnetIds:
+        - Ref: NetworkingVpcProtectedSubnet1SubnetF97DE33B
+        - Ref: NetworkingVpcProtectedSubnet2SubnetE110C692
+      VpcEndpointType: Interface
+      VpcId:
+        Ref: NetworkingVpc6B5E6F44
+    Metadata:
+      aws:cdk:path: Dev-BLEAEcsApp/Networking/Vpc/SsmEndpoint/Resource
+  NetworkingVpcSsmMessagesEndpointSecurityGroup4F815FEB:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Dev-BLEAEcsApp/Networking/Vpc/SsmMessagesEndpoint/SecurityGroup
+      SecurityGroupEgress:
+        - CidrIp: 0.0.0.0/0
+          Description: Allow all outbound traffic by default
+          IpProtocol: "-1"
+      SecurityGroupIngress:
+        - CidrIp:
+            Fn::GetAtt:
+              - NetworkingVpc6B5E6F44
+              - CidrBlock
+          Description:
+            Fn::Join:
+              - ""
+              - - "from "
+                - Fn::GetAtt:
+                    - NetworkingVpc6B5E6F44
+                    - CidrBlock
+                - :443
+          FromPort: 443
+          IpProtocol: tcp
+          ToPort: 443
+      Tags:
+        - Key: Name
+          Value: Dev-BLEAEcsApp/Networking/Vpc
+      VpcId:
+        Ref: NetworkingVpc6B5E6F44
+    Metadata:
+      aws:cdk:path: Dev-BLEAEcsApp/Networking/Vpc/SsmMessagesEndpoint/SecurityGroup/Resource
+  NetworkingVpcSsmMessagesEndpointDA21F821:
+    Type: AWS::EC2::VPCEndpoint
+    Properties:
+      PrivateDnsEnabled: true
+      SecurityGroupIds:
+        - Fn::GetAtt:
+            - NetworkingVpcSsmMessagesEndpointSecurityGroup4F815FEB
+            - GroupId
+      ServiceName: com.amazonaws.us-east-2.ssmmessages
+      SubnetIds:
+        - Ref: NetworkingVpcProtectedSubnet1SubnetF97DE33B
+        - Ref: NetworkingVpcProtectedSubnet2SubnetE110C692
+      VpcEndpointType: Interface
+      VpcId:
+        Ref: NetworkingVpc6B5E6F44
+    Metadata:
+      aws:cdk:path: Dev-BLEAEcsApp/Networking/Vpc/SsmMessagesEndpoint/Resource
+  NetworkingVpcEc2EndpointSecurityGroup28494A31:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Dev-BLEAEcsApp/Networking/Vpc/Ec2Endpoint/SecurityGroup
+      SecurityGroupEgress:
+        - CidrIp: 0.0.0.0/0
+          Description: Allow all outbound traffic by default
+          IpProtocol: "-1"
+      SecurityGroupIngress:
+        - CidrIp:
+            Fn::GetAtt:
+              - NetworkingVpc6B5E6F44
+              - CidrBlock
+          Description:
+            Fn::Join:
+              - ""
+              - - "from "
+                - Fn::GetAtt:
+                    - NetworkingVpc6B5E6F44
+                    - CidrBlock
+                - :443
+          FromPort: 443
+          IpProtocol: tcp
+          ToPort: 443
+      Tags:
+        - Key: Name
+          Value: Dev-BLEAEcsApp/Networking/Vpc
+      VpcId:
+        Ref: NetworkingVpc6B5E6F44
+    Metadata:
+      aws:cdk:path: Dev-BLEAEcsApp/Networking/Vpc/Ec2Endpoint/SecurityGroup/Resource
+  NetworkingVpcEc2EndpointCDE9BE0C:
+    Type: AWS::EC2::VPCEndpoint
+    Properties:
+      PrivateDnsEnabled: true
+      SecurityGroupIds:
+        - Fn::GetAtt:
+            - NetworkingVpcEc2EndpointSecurityGroup28494A31
+            - GroupId
+      ServiceName: com.amazonaws.us-east-2.ec2
+      SubnetIds:
+        - Ref: NetworkingVpcProtectedSubnet1SubnetF97DE33B
+        - Ref: NetworkingVpcProtectedSubnet2SubnetE110C692
+      VpcEndpointType: Interface
+      VpcId:
+        Ref: NetworkingVpc6B5E6F44
+    Metadata:
+      aws:cdk:path: Dev-BLEAEcsApp/Networking/Vpc/Ec2Endpoint/Resource
+  NetworkingVpcEc2MessagesEndpointSecurityGroupA9FD1F29:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Dev-BLEAEcsApp/Networking/Vpc/Ec2MessagesEndpoint/SecurityGroup
+      SecurityGroupEgress:
+        - CidrIp: 0.0.0.0/0
+          Description: Allow all outbound traffic by default
+          IpProtocol: "-1"
+      SecurityGroupIngress:
+        - CidrIp:
+            Fn::GetAtt:
+              - NetworkingVpc6B5E6F44
+              - CidrBlock
+          Description:
+            Fn::Join:
+              - ""
+              - - "from "
+                - Fn::GetAtt:
+                    - NetworkingVpc6B5E6F44
+                    - CidrBlock
+                - :443
+          FromPort: 443
+          IpProtocol: tcp
+          ToPort: 443
+      Tags:
+        - Key: Name
+          Value: Dev-BLEAEcsApp/Networking/Vpc
+      VpcId:
+        Ref: NetworkingVpc6B5E6F44
+    Metadata:
+      aws:cdk:path: Dev-BLEAEcsApp/Networking/Vpc/Ec2MessagesEndpoint/SecurityGroup/Resource
+  NetworkingVpcEc2MessagesEndpointD64BDA68:
+    Type: AWS::EC2::VPCEndpoint
+    Properties:
+      PrivateDnsEnabled: true
+      SecurityGroupIds:
+        - Fn::GetAtt:
+            - NetworkingVpcEc2MessagesEndpointSecurityGroupA9FD1F29
+            - GroupId
+      ServiceName: com.amazonaws.us-east-2.ec2messages
+      SubnetIds:
+        - Ref: NetworkingVpcProtectedSubnet1SubnetF97DE33B
+        - Ref: NetworkingVpcProtectedSubnet2SubnetE110C692
+      VpcEndpointType: Interface
+      VpcId:
+        Ref: NetworkingVpc6B5E6F44
+    Metadata:
+      aws:cdk:path: Dev-BLEAEcsApp/Networking/Vpc/Ec2MessagesEndpoint/Resource
+  NetworkingVpcEcrDkrEndpointSecurityGroupBDD2F421:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Dev-BLEAEcsApp/Networking/Vpc/EcrDkrEndpoint/SecurityGroup
+      SecurityGroupEgress:
+        - CidrIp: 0.0.0.0/0
+          Description: Allow all outbound traffic by default
+          IpProtocol: "-1"
+      SecurityGroupIngress:
+        - CidrIp:
+            Fn::GetAtt:
+              - NetworkingVpc6B5E6F44
+              - CidrBlock
+          Description:
+            Fn::Join:
+              - ""
+              - - "from "
+                - Fn::GetAtt:
+                    - NetworkingVpc6B5E6F44
+                    - CidrBlock
+                - :443
+          FromPort: 443
+          IpProtocol: tcp
+          ToPort: 443
+      Tags:
+        - Key: Name
+          Value: Dev-BLEAEcsApp/Networking/Vpc
+      VpcId:
+        Ref: NetworkingVpc6B5E6F44
+    Metadata:
+      aws:cdk:path: Dev-BLEAEcsApp/Networking/Vpc/EcrDkrEndpoint/SecurityGroup/Resource
+  NetworkingVpcEcrDkrEndpoint1A7B0929:
+    Type: AWS::EC2::VPCEndpoint
+    Properties:
+      PrivateDnsEnabled: true
+      SecurityGroupIds:
+        - Fn::GetAtt:
+            - NetworkingVpcEcrDkrEndpointSecurityGroupBDD2F421
+            - GroupId
+      ServiceName: com.amazonaws.us-east-2.ecr.dkr
+      SubnetIds:
+        - Ref: NetworkingVpcProtectedSubnet1SubnetF97DE33B
+        - Ref: NetworkingVpcProtectedSubnet2SubnetE110C692
+      VpcEndpointType: Interface
+      VpcId:
+        Ref: NetworkingVpc6B5E6F44
+    Metadata:
+      aws:cdk:path: Dev-BLEAEcsApp/Networking/Vpc/EcrDkrEndpoint/Resource
+  NetworkingVpcEcrEndpointSecurityGroup50E4A6FF:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Dev-BLEAEcsApp/Networking/Vpc/EcrEndpoint/SecurityGroup
+      SecurityGroupEgress:
+        - CidrIp: 0.0.0.0/0
+          Description: Allow all outbound traffic by default
+          IpProtocol: "-1"
+      SecurityGroupIngress:
+        - CidrIp:
+            Fn::GetAtt:
+              - NetworkingVpc6B5E6F44
+              - CidrBlock
+          Description:
+            Fn::Join:
+              - ""
+              - - "from "
+                - Fn::GetAtt:
+                    - NetworkingVpc6B5E6F44
+                    - CidrBlock
+                - :443
+          FromPort: 443
+          IpProtocol: tcp
+          ToPort: 443
+      Tags:
+        - Key: Name
+          Value: Dev-BLEAEcsApp/Networking/Vpc
+      VpcId:
+        Ref: NetworkingVpc6B5E6F44
+    Metadata:
+      aws:cdk:path: Dev-BLEAEcsApp/Networking/Vpc/EcrEndpoint/SecurityGroup/Resource
+  NetworkingVpcEcrEndpoint1EB7FE50:
+    Type: AWS::EC2::VPCEndpoint
+    Properties:
+      PrivateDnsEnabled: true
+      SecurityGroupIds:
+        - Fn::GetAtt:
+            - NetworkingVpcEcrEndpointSecurityGroup50E4A6FF
+            - GroupId
+      ServiceName: com.amazonaws.us-east-2.ecr.api
+      SubnetIds:
+        - Ref: NetworkingVpcProtectedSubnet1SubnetF97DE33B
+        - Ref: NetworkingVpcProtectedSubnet2SubnetE110C692
+      VpcEndpointType: Interface
+      VpcId:
+        Ref: NetworkingVpc6B5E6F44
+    Metadata:
+      aws:cdk:path: Dev-BLEAEcsApp/Networking/Vpc/EcrEndpoint/Resource
+  NetworkingVpcLogsEndpointSecurityGroup75F247A6:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Dev-BLEAEcsApp/Networking/Vpc/LogsEndpoint/SecurityGroup
+      SecurityGroupEgress:
+        - CidrIp: 0.0.0.0/0
+          Description: Allow all outbound traffic by default
+          IpProtocol: "-1"
+      SecurityGroupIngress:
+        - CidrIp:
+            Fn::GetAtt:
+              - NetworkingVpc6B5E6F44
+              - CidrBlock
+          Description:
+            Fn::Join:
+              - ""
+              - - "from "
+                - Fn::GetAtt:
+                    - NetworkingVpc6B5E6F44
+                    - CidrBlock
+                - :443
+          FromPort: 443
+          IpProtocol: tcp
+          ToPort: 443
+      Tags:
+        - Key: Name
+          Value: Dev-BLEAEcsApp/Networking/Vpc
+      VpcId:
+        Ref: NetworkingVpc6B5E6F44
+    Metadata:
+      aws:cdk:path: Dev-BLEAEcsApp/Networking/Vpc/LogsEndpoint/SecurityGroup/Resource
+  NetworkingVpcLogsEndpoint64784F03:
+    Type: AWS::EC2::VPCEndpoint
+    Properties:
+      PrivateDnsEnabled: true
+      SecurityGroupIds:
+        - Fn::GetAtt:
+            - NetworkingVpcLogsEndpointSecurityGroup75F247A6
+            - GroupId
+      ServiceName: com.amazonaws.us-east-2.logs
+      SubnetIds:
+        - Ref: NetworkingVpcProtectedSubnet1SubnetF97DE33B
+        - Ref: NetworkingVpcProtectedSubnet2SubnetE110C692
+      VpcEndpointType: Interface
+      VpcId:
+        Ref: NetworkingVpc6B5E6F44
+    Metadata:
+      aws:cdk:path: Dev-BLEAEcsApp/Networking/Vpc/LogsEndpoint/Resource
+  NetworkingKey5DCEF7CD:
+    Type: AWS::KMS::Key
+    Properties:
+      Description: "BLEA Guest Sample: CMK for EcsApp VPC Flow Logs"
+      EnableKeyRotation: true
+      KeyPolicy:
+        Statement:
+          - Action: kms:*
+            Effect: Allow
+            Principal:
+              AWS:
+                Fn::Join:
+                  - ""
+                  - - "arn:"
+                    - Ref: AWS::Partition
+                    - :iam::818740031270:root
+            Resource: "*"
+          - Action:
+              - kms:Encrypt*
+              - kms:Decrypt*
+              - kms:ReEncrypt*
+              - kms:GenerateDataKey*
+              - kms:Describe*
+            Effect: Allow
+            Principal:
+              Service: delivery.logs.amazonaws.com
+            Resource: "*"
+        Version: "2012-10-17"
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain
+    Metadata:
+      aws:cdk:path: Dev-BLEAEcsApp/Networking/Key/Resource
+  NetworkingKeyAlias2BF09FC0:
+    Type: AWS::KMS::Alias
+    Properties:
+      AliasName: alias/DevBLEAEcsAppNetworkingA22B7407
+      TargetKeyId:
+        Fn::GetAtt:
+          - NetworkingKey5DCEF7CD
+          - Arn
+    Metadata:
+      aws:cdk:path: Dev-BLEAEcsApp/Networking/Key/Alias/Resource
+  NetworkingFlowLogBucket33187957:
+    Type: AWS::S3::Bucket
+    Properties:
+      AccessControl: Private
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              KMSMasterKeyID:
+                Fn::GetAtt:
+                  - NetworkingKey5DCEF7CD
+                  - Arn
+              SSEAlgorithm: aws:kms
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain
+    Metadata:
+      aws:cdk:path: Dev-BLEAEcsApp/Networking/FlowLogBucket/Resource
+  NetworkingFlowLogBucketPolicy1EE356A6:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket:
+        Ref: NetworkingFlowLogBucket33187957
+      PolicyDocument:
+        Statement:
+          - Action: s3:*
+            Condition:
+              Bool:
+                aws:SecureTransport: "false"
+            Effect: Deny
+            Principal:
+              AWS: "*"
+            Resource:
+              - Fn::GetAtt:
+                  - NetworkingFlowLogBucket33187957
+                  - Arn
+              - Fn::Join:
+                  - ""
+                  - - Fn::GetAtt:
+                        - NetworkingFlowLogBucket33187957
+                        - Arn
+                    - /*
+        Version: "2012-10-17"
+    Metadata:
+      aws:cdk:path: Dev-BLEAEcsApp/Networking/FlowLogBucket/Policy/Resource
+  NetworkingPublicNacl8F0D44A5:
+    Type: AWS::EC2::NetworkAcl
+    Properties:
+      Tags:
+        - Key: Name
+          Value: Dev-BLEAEcsApp/Networking/PublicNacl
+      VpcId:
+        Ref: NetworkingVpc6B5E6F44
+    Metadata:
+      aws:cdk:path: Dev-BLEAEcsApp/Networking/PublicNacl/Resource
+  NetworkingPublicNaclDefaultAssociationDevBLEAEcsAppNetworkingVpcPublicSubnet16B6DFC6159138662:
+    Type: AWS::EC2::SubnetNetworkAclAssociation
+    Properties:
+      NetworkAclId:
+        Ref: NetworkingPublicNacl8F0D44A5
+      SubnetId:
+        Ref: NetworkingVpcPublicSubnet1Subnet918289EE
+    Metadata:
+      aws:cdk:path: Dev-BLEAEcsApp/Networking/PublicNacl/DefaultAssociationDevBLEAEcsAppNetworkingVpcPublicSubnet16B6DFC61/Resource
+  NetworkingPublicNaclDefaultAssociationDevBLEAEcsAppNetworkingVpcPublicSubnet289C2029036EE5714:
+    Type: AWS::EC2::SubnetNetworkAclAssociation
+    Properties:
+      NetworkAclId:
+        Ref: NetworkingPublicNacl8F0D44A5
+      SubnetId:
+        Ref: NetworkingVpcPublicSubnet2Subnet9D9E5AFB
+    Metadata:
+      aws:cdk:path: Dev-BLEAEcsApp/Networking/PublicNacl/DefaultAssociationDevBLEAEcsAppNetworkingVpcPublicSubnet289C20290/Resource
+  NetworkingPublicNaclPublicEgress927B5E86:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      CidrBlock: 0.0.0.0/0
+      Egress: true
+      NetworkAclId:
+        Ref: NetworkingPublicNacl8F0D44A5
+      Protocol: -1
+      RuleAction: allow
+      RuleNumber: 100
+    Metadata:
+      aws:cdk:path: Dev-BLEAEcsApp/Networking/PublicNacl/PublicEgress/Resource
+  NetworkingPublicNaclPublicIngressAC30352B:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      CidrBlock: 0.0.0.0/0
+      Egress: false
+      NetworkAclId:
+        Ref: NetworkingPublicNacl8F0D44A5
+      Protocol: -1
+      RuleAction: allow
+      RuleNumber: 100
+    Metadata:
+      aws:cdk:path: Dev-BLEAEcsApp/Networking/PublicNacl/PublicIngress/Resource
+  NetworkingPrivateNacl8E602059:
+    Type: AWS::EC2::NetworkAcl
+    Properties:
+      Tags:
+        - Key: Name
+          Value: Dev-BLEAEcsApp/Networking/PrivateNacl
+      VpcId:
+        Ref: NetworkingVpc6B5E6F44
+    Metadata:
+      aws:cdk:path: Dev-BLEAEcsApp/Networking/PrivateNacl/Resource
+  NetworkingPrivateNaclDefaultAssociationDevBLEAEcsAppNetworkingVpcPrivateSubnet1A826B024A559447B:
+    Type: AWS::EC2::SubnetNetworkAclAssociation
+    Properties:
+      NetworkAclId:
+        Ref: NetworkingPrivateNacl8E602059
+      SubnetId:
+        Ref: NetworkingVpcPrivateSubnet1Subnet717BCE48
+    Metadata:
+      aws:cdk:path: Dev-BLEAEcsApp/Networking/PrivateNacl/DefaultAssociationDevBLEAEcsAppNetworkingVpcPrivateSubnet1A826B024/Resource
+  NetworkingPrivateNaclDefaultAssociationDevBLEAEcsAppNetworkingVpcPrivateSubnet2538D8B4F0D542AC8:
+    Type: AWS::EC2::SubnetNetworkAclAssociation
+    Properties:
+      NetworkAclId:
+        Ref: NetworkingPrivateNacl8E602059
+      SubnetId:
+        Ref: NetworkingVpcPrivateSubnet2Subnet4313381B
+    Metadata:
+      aws:cdk:path: Dev-BLEAEcsApp/Networking/PrivateNacl/DefaultAssociationDevBLEAEcsAppNetworkingVpcPrivateSubnet2538D8B4F/Resource
+  NetworkingPrivateNaclPrivateEgress8D7BEE42:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      CidrBlock: 0.0.0.0/0
+      Egress: true
+      NetworkAclId:
+        Ref: NetworkingPrivateNacl8E602059
+      Protocol: -1
+      RuleAction: allow
+      RuleNumber: 100
+    Metadata:
+      aws:cdk:path: Dev-BLEAEcsApp/Networking/PrivateNacl/PrivateEgress/Resource
+  NetworkingPrivateNaclPrivateIngressA5CFFFD6:
+    Type: AWS::EC2::NetworkAclEntry
+    Properties:
+      CidrBlock: 0.0.0.0/0
+      Egress: false
+      NetworkAclId:
+        Ref: NetworkingPrivateNacl8E602059
+      Protocol: -1
+      RuleAction: allow
+      RuleNumber: 120
+    Metadata:
+      aws:cdk:path: Dev-BLEAEcsApp/Networking/PrivateNacl/PrivateIngress/Resource
+  DatastoreAuroraClusterSubnetsD8325308:
+    Type: AWS::RDS::DBSubnetGroup
+    Properties:
+      DBSubnetGroupDescription: Subnets for AuroraCluster database
+      SubnetIds:
+        - Ref: NetworkingVpcProtectedSubnet1SubnetF97DE33B
+        - Ref: NetworkingVpcProtectedSubnet2SubnetE110C692
+    Metadata:
+      aws:cdk:path: Dev-BLEAEcsApp/Datastore/AuroraCluster/Subnets/Default
+  DatastoreAuroraClusterSecurityGroup1E718F0C:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: RDS security group
+      SecurityGroupEgress:
+        - CidrIp: 0.0.0.0/0
+          Description: Allow all outbound traffic by default
+          IpProtocol: "-1"
+      VpcId:
+        Ref: NetworkingVpc6B5E6F44
+    Metadata:
+      aws:cdk:path: Dev-BLEAEcsApp/Datastore/AuroraCluster/SecurityGroup/Resource
+  DatastoreAuroraClusterSecurityGroupfromDevBLEAEcsAppAppSg3B8EA4D3IndirectPort62569279:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      Description: from DevBLEAEcsAppAppSg3B8EA4D3:{IndirectPort}
+      FromPort:
+        Fn::GetAtt:
+          - DatastoreAuroraCluster2FE23DD5
+          - Endpoint.Port
+      GroupId:
+        Fn::GetAtt:
+          - DatastoreAuroraClusterSecurityGroup1E718F0C
+          - GroupId
+      IpProtocol: tcp
+      SourceSecurityGroupId:
+        Fn::GetAtt:
+          - EcsAppAppSg51F5A2AA
+          - GroupId
+      ToPort:
+        Fn::GetAtt:
+          - DatastoreAuroraCluster2FE23DD5
+          - Endpoint.Port
+    Metadata:
+      aws:cdk:path: Dev-BLEAEcsApp/Datastore/AuroraCluster/SecurityGroup/from DevBLEAEcsAppAppSg3B8EA4D3:{IndirectPort}
+  DevBLEAEcsAppDatastoreAuroraClusterSecret062A0F6B3fdaad7efa858a3daf9490cf0a702aeb:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Description:
+        Fn::Join:
+          - ""
+          - - "Generated by the CDK for stack: "
+            - Ref: AWS::StackName
+      GenerateSecretString:
+        ExcludeCharacters: " %+~`#$&*()|[]{}:;<>?!'/@\"\\"
+        GenerateStringKey: password
+        PasswordLength: 30
+        SecretStringTemplate: '{"username":"dbadmin"}'
+    UpdateReplacePolicy: Delete
+    DeletionPolicy: Delete
+    Metadata:
+      aws:cdk:path: Dev-BLEAEcsApp/Datastore/AuroraCluster/Secret/Resource
+  DatastoreAuroraClusterSecretAttachment3F350821:
+    Type: AWS::SecretsManager::SecretTargetAttachment
+    Properties:
+      SecretId:
+        Ref: DevBLEAEcsAppDatastoreAuroraClusterSecret062A0F6B3fdaad7efa858a3daf9490cf0a702aeb
+      TargetId:
+        Ref: DatastoreAuroraCluster2FE23DD5
+      TargetType: AWS::RDS::DBCluster
+    Metadata:
+      aws:cdk:path: Dev-BLEAEcsApp/Datastore/AuroraCluster/Secret/Attachment/Resource
+  DatastoreAuroraCluster2FE23DD5:
+    Type: AWS::RDS::DBCluster
+    Properties:
+      CopyTagsToSnapshot: true
+      DBClusterParameterGroupName: default.aurora-postgresql11
+      DBSubnetGroupName:
+        Ref: DatastoreAuroraClusterSubnetsD8325308
+      DatabaseName: mydb
+      EnableCloudwatchLogsExports:
+        - postgresql
+      Engine: aurora-postgresql
+      EngineVersion: "11.9"
+      KmsKeyId:
+        Fn::GetAtt:
+          - CMK56817A4C
+          - Arn
+      MasterUserPassword:
+        Fn::Join:
+          - ""
+          - - "{{resolve:secretsmanager:"
+            - Ref: DevBLEAEcsAppDatastoreAuroraClusterSecret062A0F6B3fdaad7efa858a3daf9490cf0a702aeb
+            - :SecretString:password::}}
+      MasterUsername: dbadmin
+      Port: 5432
+      StorageEncrypted: true
+      VpcSecurityGroupIds:
+        - Fn::GetAtt:
+            - DatastoreAuroraClusterSecurityGroup1E718F0C
+            - GroupId
+    UpdateReplacePolicy: Snapshot
+    DeletionPolicy: Snapshot
+    Metadata:
+      aws:cdk:path: Dev-BLEAEcsApp/Datastore/AuroraCluster/Resource
+  DatastoreAuroraClusterLogRetentionpostgresql428EA768:
+    Type: Custom::LogRetention
+    Properties:
+      ServiceToken:
+        Fn::GetAtt:
+          - LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aFD4BFC8A
+          - Arn
+      LogGroupName:
+        Fn::Join:
+          - ""
+          - - /aws/rds/cluster/
+            - Ref: DatastoreAuroraCluster2FE23DD5
+            - /postgresql
+      RetentionInDays: 90
+    Metadata:
+      aws:cdk:path: Dev-BLEAEcsApp/Datastore/AuroraCluster/LogRetentionpostgresql/Resource
+  DatastoreAuroraClusterInstance17CC9C737:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      DBClusterIdentifier:
+        Ref: DatastoreAuroraCluster2FE23DD5
+      DBInstanceClass: db.t3.medium
+      DBInstanceIdentifier: Datastore1
+      DBSubnetGroupName:
+        Ref: DatastoreAuroraClusterSubnetsD8325308
+      EnablePerformanceInsights: true
+      Engine: aurora-postgresql
+      PerformanceInsightsKMSKeyId:
+        Fn::GetAtt:
+          - CMK56817A4C
+          - Arn
+      PerformanceInsightsRetentionPeriod: 7
+      PubliclyAccessible: false
+    DependsOn:
+      - NetworkingVpcProtectedSubnet1RouteTableAssociation011790AB
+      - NetworkingVpcProtectedSubnet2RouteTableAssociation01AFDB7E
+    UpdateReplacePolicy: Delete
+    DeletionPolicy: Delete
+    Metadata:
+      aws:cdk:path: Dev-BLEAEcsApp/Datastore/AuroraCluster/Instance1
+  DatastoreAuroraClusterInstance2FA5EF5D9:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      DBClusterIdentifier:
+        Ref: DatastoreAuroraCluster2FE23DD5
+      DBInstanceClass: db.t3.medium
+      DBInstanceIdentifier: Datastore2
+      DBSubnetGroupName:
+        Ref: DatastoreAuroraClusterSubnetsD8325308
+      EnablePerformanceInsights: true
+      Engine: aurora-postgresql
+      PerformanceInsightsKMSKeyId:
+        Fn::GetAtt:
+          - CMK56817A4C
+          - Arn
+      PerformanceInsightsRetentionPeriod: 7
+      PubliclyAccessible: false
+    DependsOn:
+      - NetworkingVpcProtectedSubnet1RouteTableAssociation011790AB
+      - NetworkingVpcProtectedSubnet2RouteTableAssociation01AFDB7E
+    UpdateReplacePolicy: Delete
+    DeletionPolicy: Delete
+    Metadata:
+      aws:cdk:path: Dev-BLEAEcsApp/Datastore/AuroraCluster/Instance2
+  DatastoreAuroraCPUUtilAlarm68E3EE59:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      ActionsEnabled: true
+      AlarmActions:
+        - Ref: MonitoringAlarmTopicAF62D4F1
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      DatapointsToAlarm: 3
+      Dimensions:
+        - Name: DBClusterIdentifier
+          Value:
+            Ref: DatastoreAuroraCluster2FE23DD5
+      EvaluationPeriods: 3
+      MetricName: CPUUtilization
+      Namespace: AWS/RDS
+      Period: 60
+      Statistic: Average
+      Threshold: 90
+    Metadata:
+      aws:cdk:path: Dev-BLEAEcsApp/Datastore/AuroraCPUUtilAlarm/Resource
+  DatastoreRdsClusterEventSubscB4CD338B:
+    Type: AWS::RDS::EventSubscription
+    Properties:
+      Enabled: true
+      EventCategories:
+        - failure
+        - failover
+        - maintenance
+      SnsTopicArn:
+        Ref: MonitoringAlarmTopicAF62D4F1
+      SourceType: db-cluster
+    Metadata:
+      aws:cdk:path: Dev-BLEAEcsApp/Datastore/RdsClusterEventSubsc
+  DatastoreRdsInstanceEventSubsc8966D6FB:
+    Type: AWS::RDS::EventSubscription
+    Properties:
+      Enabled: true
+      EventCategories:
+        - availability
+        - configuration change
+        - deletion
+        - failover
+        - failure
+        - maintenance
+        - notification
+        - recovery
+      SnsTopicArn:
+        Ref: MonitoringAlarmTopicAF62D4F1
+      SourceType: db-instance
+    Metadata:
+      aws:cdk:path: Dev-BLEAEcsApp/Datastore/RdsInstanceEventSubsc
+  LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRole9741ECFB:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+        Version: "2012-10-17"
+      ManagedPolicyArns:
+        - Fn::Join:
+            - ""
+            - - "arn:"
+              - Ref: AWS::Partition
+              - :iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+    Metadata:
+      aws:cdk:path: Dev-BLEAEcsApp/LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8a/ServiceRole/Resource
+  LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRoleDefaultPolicyADDA7DEB:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Action:
+              - logs:PutRetentionPolicy
+              - logs:DeleteRetentionPolicy
+            Effect: Allow
+            Resource: "*"
+        Version: "2012-10-17"
+      PolicyName: LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRoleDefaultPolicyADDA7DEB
+      Roles:
+        - Ref: LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRole9741ECFB
+    Metadata:
+      aws:cdk:path: Dev-BLEAEcsApp/LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8a/ServiceRole/DefaultPolicy/Resource
+  LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aFD4BFC8A:
+    Type: AWS::Lambda::Function
+    Properties:
+      Handler: index.handler
+      Runtime: nodejs20.x
+      Timeout: 900
+      Code:
+        S3Bucket: cdk-hnb659fds-assets-818740031270-us-east-2
+        S3Key: 4e26bf2d0a26f2097fb2b261f22bb51e3f6b4b52635777b1e54edbd8e2d58c35.zip
+      Role:
+        Fn::GetAtt:
+          - LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRole9741ECFB
+          - Arn
+    DependsOn:
+      - LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRoleDefaultPolicyADDA7DEB
+      - LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRole9741ECFB
+    Metadata:
+      aws:cdk:path: Dev-BLEAEcsApp/LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8a/Resource
+      aws:asset:path: asset.4e26bf2d0a26f2097fb2b261f22bb51e3f6b4b52635777b1e54edbd8e2d58c35
+      aws:asset:is-bundled: false
+      aws:asset:property: Code
+  EcsAppAlbSg7EC37FC7:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Dev-BLEAEcsApp/EcsApp/AlbSg
+      SecurityGroupEgress:
+        - CidrIp: 0.0.0.0/0
+          Description: Allow all outbound traffic by default
+          IpProtocol: "-1"
+      SecurityGroupIngress:
+        - CidrIp: 0.0.0.0/0
+          Description: Allow from anyone on port 80
+          FromPort: 80
+          IpProtocol: tcp
+          ToPort: 80
+      VpcId:
+        Ref: NetworkingVpc6B5E6F44
+    Metadata:
+      aws:cdk:path: Dev-BLEAEcsApp/EcsApp/AlbSg/Resource
+  EcsAppAlb74CC21B3:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      LoadBalancerAttributes:
+        - Key: deletion_protection.enabled
+          Value: "false"
+        - Key: access_logs.s3.enabled
+          Value: "true"
+        - Key: access_logs.s3.bucket
+          Value:
+            Ref: EcsAppAlbLogBucket160A578E
+      Scheme: internet-facing
+      SecurityGroups:
+        - Fn::GetAtt:
+            - EcsAppAlbSg7EC37FC7
+            - GroupId
+      Subnets:
+        - Ref: NetworkingVpcPublicSubnet1Subnet918289EE
+        - Ref: NetworkingVpcPublicSubnet2Subnet9D9E5AFB
+      Type: application
+    DependsOn:
+      - NetworkingVpcPublicSubnet1DefaultRoute80C01FA6
+      - NetworkingVpcPublicSubnet1RouteTableAssociationD13830EA
+      - NetworkingVpcPublicSubnet2DefaultRouteDF98F60F
+      - NetworkingVpcPublicSubnet2RouteTableAssociation2D4CEA06
+    Metadata:
+      aws:cdk:path: Dev-BLEAEcsApp/EcsApp/Alb/Resource
+  EcsAppAlbAlbSslListener056EB6C5:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      DefaultActions:
+        - TargetGroupArn:
+            Ref: EcsAppAlbAlbSslListenerAppTargetGroupGroup00D988B0
+          Type: forward
+      LoadBalancerArn:
+        Ref: EcsAppAlb74CC21B3
+      Port: 80
+      Protocol: HTTP
+    Metadata:
+      aws:cdk:path: Dev-BLEAEcsApp/EcsApp/Alb/AlbSslListener/Resource
+  EcsAppAlbAlbSslListenerAppTargetGroupGroup00D988B0:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Port: 80
+      Protocol: HTTP
+      TargetGroupAttributes:
+        - Key: deregistration_delay.timeout_seconds
+          Value: "30"
+        - Key: stickiness.enabled
+          Value: "false"
+      TargetType: ip
+      VpcId:
+        Ref: NetworkingVpc6B5E6F44
+    Metadata:
+      aws:cdk:path: Dev-BLEAEcsApp/EcsApp/Alb/AlbSslListener/AppTargetGroupGroup/Resource
+  EcsAppAlbLogBucket160A578E:
+    Type: AWS::S3::Bucket
+    Properties:
+      AccessControl: Private
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain
+    Metadata:
+      aws:cdk:path: Dev-BLEAEcsApp/EcsApp/AlbLogBucket/Resource
+  EcsAppAlbLogBucketPolicy1A37CC7F:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket:
+        Ref: EcsAppAlbLogBucket160A578E
+      PolicyDocument:
+        Statement:
+          - Action: s3:*
+            Condition:
+              Bool:
+                aws:SecureTransport: "false"
+            Effect: Deny
+            Principal:
+              AWS: "*"
+            Resource:
+              - Fn::GetAtt:
+                  - EcsAppAlbLogBucket160A578E
+                  - Arn
+              - Fn::Join:
+                  - ""
+                  - - Fn::GetAtt:
+                        - EcsAppAlbLogBucket160A578E
+                        - Arn
+                    - /*
+          - Action: s3:PutObject
+            Effect: Allow
+            Principal:
+              AWS:
+                Fn::Join:
+                  - ""
+                  - - "arn:"
+                    - Ref: AWS::Partition
+                    - :iam::033677994240:root
+            Resource:
+              Fn::Join:
+                - ""
+                - - Fn::GetAtt:
+                      - EcsAppAlbLogBucket160A578E
+                      - Arn
+                  - /AWSLogs/818740031270/*
+          - Action: s3:PutObject
+            Condition:
+              StringEquals:
+                s3:x-amz-acl: bucket-owner-full-control
+            Effect: Allow
+            Principal:
+              Service: delivery.logs.amazonaws.com
+            Resource:
+              Fn::Join:
+                - ""
+                - - Fn::GetAtt:
+                      - EcsAppAlbLogBucket160A578E
+                      - Arn
+                  - /AWSLogs/818740031270/*
+          - Action: s3:GetBucketAcl
+            Effect: Allow
+            Principal:
+              Service: delivery.logs.amazonaws.com
+            Resource:
+              Fn::GetAtt:
+                - EcsAppAlbLogBucket160A578E
+                - Arn
+        Version: "2012-10-17"
+    Metadata:
+      aws:cdk:path: Dev-BLEAEcsApp/EcsApp/AlbLogBucket/Policy/Resource
+  EcsAppEcsTaskExecutionRoleD9A4AEEE:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: ecs-tasks.amazonaws.com
+        Version: "2012-10-17"
+      ManagedPolicyArns:
+        - Fn::Join:
+            - ""
+            - - "arn:"
+              - Ref: AWS::Partition
+              - :iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
+      Policies:
+        - PolicyDocument:
+            Statement:
+              - Action:
+                  - ecr:BatchImportUpstreamImage
+                  - ecr:CreateRepository
+                Effect: Allow
+                Resource: "*"
+            Version: "2012-10-17"
+          PolicyName: ecrPullThroughCache
+    Metadata:
+      aws:cdk:path: Dev-BLEAEcsApp/EcsApp/EcsTaskExecutionRole/Resource
+  EcsAppEcsTaskExecutionRoleDefaultPolicy32A365EF:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Action:
+              - ecr:BatchCheckLayerAvailability
+              - ecr:GetDownloadUrlForLayer
+              - ecr:BatchGetImage
+            Effect: Allow
+            Resource:
+              Fn::Join:
+                - ""
+                - - "arn:"
+                  - Ref: AWS::Partition
+                  - :ecr:us-east-2:818740031270:repository/devblecsapp-af22469e/docker/library/httpd
+          - Action: ecr:GetAuthorizationToken
+            Effect: Allow
+            Resource: "*"
+          - Action:
+              - logs:CreateLogStream
+              - logs:PutLogEvents
+            Effect: Allow
+            Resource:
+              Fn::GetAtt:
+                - EcsAppAppLogGroupF1EFF025
+                - Arn
+        Version: "2012-10-17"
+      PolicyName: EcsAppEcsTaskExecutionRoleDefaultPolicy32A365EF
+      Roles:
+        - Ref: EcsAppEcsTaskExecutionRoleD9A4AEEE
+    Metadata:
+      aws:cdk:path: Dev-BLEAEcsApp/EcsApp/EcsTaskExecutionRole/DefaultPolicy/Resource
+  EcsAppEcsTaskRole2B17F49D:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: ecs-tasks.amazonaws.com
+        Version: "2012-10-17"
+    Metadata:
+      aws:cdk:path: Dev-BLEAEcsApp/EcsApp/EcsTaskRole/Resource
+  EcsAppAppSg51F5A2AA:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Dev-BLEAEcsApp/EcsApp/AppSg
+      SecurityGroupEgress:
+        - CidrIp: 0.0.0.0/0
+          Description: Allow all outbound traffic by default
+          IpProtocol: "-1"
+      VpcId:
+        Ref: NetworkingVpc6B5E6F44
+    Metadata:
+      aws:cdk:path: Dev-BLEAEcsApp/EcsApp/AppSg/Resource
+  EcsAppAppSgfromDevBLEAEcsAppAlbSg3F55726F80BEF887B7:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      Description: Load balancer to target
+      FromPort: 80
+      GroupId:
+        Fn::GetAtt:
+          - EcsAppAppSg51F5A2AA
+          - GroupId
+      IpProtocol: tcp
+      SourceSecurityGroupId:
+        Fn::GetAtt:
+          - EcsAppAlbSg7EC37FC7
+          - GroupId
+      ToPort: 80
+    Metadata:
+      aws:cdk:path: Dev-BLEAEcsApp/EcsApp/AppSg/from DevBLEAEcsAppAlbSg3F55726F:80
+  EcsAppAppLogGroupF1EFF025:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      KmsKeyId:
+        Fn::GetAtt:
+          - CMK56817A4C
+          - Arn
+      RetentionInDays: 90
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain
+    Metadata:
+      aws:cdk:path: Dev-BLEAEcsApp/EcsApp/AppLogGroup/Resource
+  EcsAppCluster7C7DF57B:
+    Type: AWS::ECS::Cluster
+    Properties:
+      ClusterSettings:
+        - Name: containerInsights
+          Value: enabled
+    Metadata:
+      aws:cdk:path: Dev-BLEAEcsApp/EcsApp/Cluster/Resource
+  EcsAppClusterCDCF413B:
+    Type: AWS::ECS::ClusterCapacityProviderAssociations
+    Properties:
+      CapacityProviders:
+        - FARGATE
+        - FARGATE_SPOT
+      Cluster:
+        Ref: EcsAppCluster7C7DF57B
+      DefaultCapacityProviderStrategy: []
+    Metadata:
+      aws:cdk:path: Dev-BLEAEcsApp/EcsApp/Cluster/Cluster
+  EcsAppTaskDefinitionB559BC4B:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      ContainerDefinitions:
+        - Environment:
+            - Name: ENVIRONMENT_VARIABLE_SAMPLE_KEY
+              Value: Environment Variable Sample Value
+          Essential: true
+          Image:
+            Fn::Join:
+              - ""
+              - - 818740031270.dkr.ecr.us-east-2.
+                - Ref: AWS::URLSuffix
+                - /devblecsapp-af22469e/docker/library/httpd:latest
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-group:
+                Ref: EcsAppAppLogGroupF1EFF025
+              awslogs-stream-prefix: BLEA-ECSApp-
+              awslogs-region: us-east-2
+          Name: App
+          PortMappings:
+            - ContainerPort: 80
+              Protocol: tcp
+      Cpu: "256"
+      ExecutionRoleArn:
+        Fn::GetAtt:
+          - EcsAppEcsTaskExecutionRoleD9A4AEEE
+          - Arn
+      Family: DevBLEAEcsAppTaskDefinition687CDF6B
+      Memory: "512"
+      NetworkMode: awsvpc
+      RequiresCompatibilities:
+        - FARGATE
+      TaskRoleArn:
+        Fn::GetAtt:
+          - EcsAppEcsTaskRole2B17F49D
+          - Arn
+    Metadata:
+      aws:cdk:path: Dev-BLEAEcsApp/EcsApp/TaskDefinition/Resource
+  EcsAppPullThroughCacheRuleB070981A:
+    Type: AWS::ECR::PullThroughCacheRule
+    Properties:
+      EcrRepositoryPrefix: devblecsapp-af22469e
+      UpstreamRegistryUrl: public.ecr.aws
+    Metadata:
+      aws:cdk:path: Dev-BLEAEcsApp/EcsApp/PullThroughCacheRule
+  EcsAppRepository019D9E05:
+    Type: AWS::ECR::Repository
+    Properties:
+      ImageScanningConfiguration:
+        ScanOnPush: true
+      RepositoryName: devblecsapp-af22469e/docker/library/httpd
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain
+    Metadata:
+      aws:cdk:path: Dev-BLEAEcsApp/EcsApp/Repository/Resource
+  EcsAppServiceABC8901F:
+    Type: AWS::ECS::Service
+    Properties:
+      CapacityProviderStrategy:
+        - CapacityProvider: FARGATE
+          Weight: 1
+      Cluster:
+        Ref: EcsAppCluster7C7DF57B
+      DeploymentConfiguration:
+        Alarms:
+          AlarmNames: []
+          Enable: false
+          Rollback: false
+        MaximumPercent: 200
+        MinimumHealthyPercent: 50
+      DesiredCount: 2
+      EnableECSManagedTags: false
+      HealthCheckGracePeriodSeconds: 60
+      LoadBalancers:
+        - ContainerName: App
+          ContainerPort: 80
+          TargetGroupArn:
+            Ref: EcsAppAlbAlbSslListenerAppTargetGroupGroup00D988B0
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          AssignPublicIp: DISABLED
+          SecurityGroups:
+            - Fn::GetAtt:
+                - EcsAppAppSg51F5A2AA
+                - GroupId
+          Subnets:
+            - Ref: NetworkingVpcProtectedSubnet1SubnetF97DE33B
+            - Ref: NetworkingVpcProtectedSubnet2SubnetE110C692
+      PlatformVersion: LATEST
+      TaskDefinition:
+        Ref: EcsAppTaskDefinitionB559BC4B
+    DependsOn:
+      - EcsAppAlbAlbSslListenerAppTargetGroupGroup00D988B0
+      - EcsAppAlbAlbSslListener056EB6C5
+      - EcsAppEcsTaskRole2B17F49D
+    Metadata:
+      aws:cdk:path: Dev-BLEAEcsApp/EcsApp/Service/Service
+  EcsAppServiceTaskCountTarget68D0F209:
+    Type: AWS::ApplicationAutoScaling::ScalableTarget
+    Properties:
+      MaxCapacity: 10
+      MinCapacity: 2
+      ResourceId:
+        Fn::Join:
+          - ""
+          - - service/
+            - Ref: EcsAppCluster7C7DF57B
+            - /
+            - Fn::GetAtt:
+                - EcsAppServiceABC8901F
+                - Name
+      RoleARN:
+        Fn::Join:
+          - ""
+          - - "arn:"
+            - Ref: AWS::Partition
+            - :iam::818740031270:role/aws-service-role/ecs.application-autoscaling.amazonaws.com/AWSServiceRoleForApplicationAutoScaling_ECSService
+      ScalableDimension: ecs:service:DesiredCount
+      ServiceNamespace: ecs
+    DependsOn:
+      - EcsAppEcsTaskRole2B17F49D
+    Metadata:
+      aws:cdk:path: Dev-BLEAEcsApp/EcsApp/Service/TaskCount/Target/Resource
+  EcsAppServiceTaskCountTargetCpuScalingEC96128C:
+    Type: AWS::ApplicationAutoScaling::ScalingPolicy
+    Properties:
+      PolicyName: DevBLEAEcsAppServiceTaskCountTargetCpuScaling2EA8D08F
+      PolicyType: TargetTrackingScaling
+      ScalingTargetId:
+        Ref: EcsAppServiceTaskCountTarget68D0F209
+      TargetTrackingScalingPolicyConfiguration:
+        PredefinedMetricSpecification:
+          PredefinedMetricType: ECSServiceAverageCPUUtilization
+        TargetValue: 50
+    DependsOn:
+      - EcsAppEcsTaskRole2B17F49D
+    Metadata:
+      aws:cdk:path: Dev-BLEAEcsApp/EcsApp/Service/TaskCount/Target/CpuScaling/Resource
+  EcsAppServiceTaskCountTargetRequestScaling9DD1E39A:
+    Type: AWS::ApplicationAutoScaling::ScalingPolicy
+    Properties:
+      PolicyName: DevBLEAEcsAppServiceTaskCountTargetRequestScaling50CC5FBF
+      PolicyType: TargetTrackingScaling
+      ScalingTargetId:
+        Ref: EcsAppServiceTaskCountTarget68D0F209
+      TargetTrackingScalingPolicyConfiguration:
+        PredefinedMetricSpecification:
+          PredefinedMetricType: ALBRequestCountPerTarget
+          ResourceLabel:
+            Fn::Join:
+              - ""
+              - - Fn::Select:
+                    - 1
+                    - Fn::Split:
+                        - /
+                        - Ref: EcsAppAlbAlbSslListener056EB6C5
+                - /
+                - Fn::Select:
+                    - 2
+                    - Fn::Split:
+                        - /
+                        - Ref: EcsAppAlbAlbSslListener056EB6C5
+                - /
+                - Fn::Select:
+                    - 3
+                    - Fn::Split:
+                        - /
+                        - Ref: EcsAppAlbAlbSslListener056EB6C5
+                - /
+                - Fn::GetAtt:
+                    - EcsAppAlbAlbSslListenerAppTargetGroupGroup00D988B0
+                    - TargetGroupFullName
+        TargetValue: 10000
+    DependsOn:
+      - EcsAppEcsTaskRole2B17F49D
+    Metadata:
+      aws:cdk:path: Dev-BLEAEcsApp/EcsApp/Service/TaskCount/Target/RequestScaling/Resource
+  EcsAppFargateCpuUtilDC42B865:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      ActionsEnabled: true
+      AlarmActions:
+        - Ref: MonitoringAlarmTopicAF62D4F1
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      DatapointsToAlarm: 3
+      Dimensions:
+        - Name: ClusterName
+          Value:
+            Ref: EcsAppCluster7C7DF57B
+        - Name: ServiceName
+          Value:
+            Fn::GetAtt:
+              - EcsAppServiceABC8901F
+              - Name
+      EvaluationPeriods: 3
+      MetricName: CPUUtilization
+      Namespace: AWS/ECS
+      Period: 60
+      Statistic: Average
+      Threshold: 80
+    Metadata:
+      aws:cdk:path: Dev-BLEAEcsApp/EcsApp/FargateCpuUtil/Resource
+  EcsAppAlbResponseTime6784ABB9:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      ActionsEnabled: true
+      AlarmActions:
+        - Ref: MonitoringAlarmTopicAF62D4F1
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      Dimensions:
+        - Name: LoadBalancer
+          Value:
+            Fn::GetAtt:
+              - EcsAppAlb74CC21B3
+              - LoadBalancerFullName
+      EvaluationPeriods: 3
+      MetricName: TargetResponseTime
+      Namespace: AWS/ApplicationELB
+      Period: 60
+      Statistic: Average
+      Threshold: 100
+    Metadata:
+      aws:cdk:path: Dev-BLEAEcsApp/EcsApp/AlbResponseTime/Resource
+  EcsAppAlbHttp4xxE478B099:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      ActionsEnabled: true
+      AlarmActions:
+        - Ref: MonitoringAlarmTopicAF62D4F1
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      Dimensions:
+        - Name: LoadBalancer
+          Value:
+            Fn::GetAtt:
+              - EcsAppAlb74CC21B3
+              - LoadBalancerFullName
+      EvaluationPeriods: 3
+      MetricName: HTTPCode_ELB_4XX_Count
+      Namespace: AWS/ApplicationELB
+      Period: 60
+      Statistic: Sum
+      Threshold: 10
+    Metadata:
+      aws:cdk:path: Dev-BLEAEcsApp/EcsApp/AlbHttp4xx/Resource
+  EcsAppAlbHttp5xx9D54C209:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      ActionsEnabled: true
+      AlarmActions:
+        - Ref: MonitoringAlarmTopicAF62D4F1
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      Dimensions:
+        - Name: LoadBalancer
+          Value:
+            Fn::GetAtt:
+              - EcsAppAlb74CC21B3
+              - LoadBalancerFullName
+      EvaluationPeriods: 3
+      MetricName: HTTPCode_ELB_5XX_Count
+      Namespace: AWS/ApplicationELB
+      Period: 60
+      Statistic: Sum
+      Threshold: 10
+    Metadata:
+      aws:cdk:path: Dev-BLEAEcsApp/EcsApp/AlbHttp5xx/Resource
+  EcsAppAlbTgHealthyHostCountBB6659CA:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      ActionsEnabled: true
+      AlarmActions:
+        - Ref: MonitoringAlarmTopicAF62D4F1
+      ComparisonOperator: LessThanThreshold
+      Dimensions:
+        - Name: LoadBalancer
+          Value:
+            Fn::Join:
+              - ""
+              - - Fn::Select:
+                    - 1
+                    - Fn::Split:
+                        - /
+                        - Ref: EcsAppAlbAlbSslListener056EB6C5
+                - /
+                - Fn::Select:
+                    - 2
+                    - Fn::Split:
+                        - /
+                        - Ref: EcsAppAlbAlbSslListener056EB6C5
+                - /
+                - Fn::Select:
+                    - 3
+                    - Fn::Split:
+                        - /
+                        - Ref: EcsAppAlbAlbSslListener056EB6C5
+        - Name: TargetGroup
+          Value:
+            Fn::GetAtt:
+              - EcsAppAlbAlbSslListenerAppTargetGroupGroup00D988B0
+              - TargetGroupFullName
+      EvaluationPeriods: 3
+      MetricName: HealthyHostCount
+      Namespace: AWS/ApplicationELB
+      Period: 60
+      Statistic: Average
+      Threshold: 1
+    Metadata:
+      aws:cdk:path: Dev-BLEAEcsApp/EcsApp/AlbTgHealthyHostCount/Resource
+  EcsAppAlbTgUnHealthyHostCount0E9D8FD9:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      ActionsEnabled: true
+      AlarmActions:
+        - Ref: MonitoringAlarmTopicAF62D4F1
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      Dimensions:
+        - Name: LoadBalancer
+          Value:
+            Fn::Join:
+              - ""
+              - - Fn::Select:
+                    - 1
+                    - Fn::Split:
+                        - /
+                        - Ref: EcsAppAlbAlbSslListener056EB6C5
+                - /
+                - Fn::Select:
+                    - 2
+                    - Fn::Split:
+                        - /
+                        - Ref: EcsAppAlbAlbSslListener056EB6C5
+                - /
+                - Fn::Select:
+                    - 3
+                    - Fn::Split:
+                        - /
+                        - Ref: EcsAppAlbAlbSslListener056EB6C5
+        - Name: TargetGroup
+          Value:
+            Fn::GetAtt:
+              - EcsAppAlbAlbSslListenerAppTargetGroupGroup00D988B0
+              - TargetGroupFullName
+      EvaluationPeriods: 3
+      MetricName: UnHealthyHostCount
+      Namespace: AWS/ApplicationELB
+      Period: 60
+      Statistic: Average
+      Threshold: 1
+    Metadata:
+      aws:cdk:path: Dev-BLEAEcsApp/EcsApp/AlbTgUnHealthyHostCount/Resource
+  EcsAppECSServiceActionEventRule3F3C7B23:
+    Type: AWS::Events::Rule
+    Properties:
+      Description: CloudWatch Event Rule to send notification on ECS Service action events.
+      EventPattern:
+        source:
+          - aws.ecs
+        detail-type:
+          - ECS Service Action
+        detail:
+          eventType:
+            - WARN
+            - ERROR
+      State: ENABLED
+      Targets:
+        - Arn:
+            Ref: MonitoringAlarmTopicAF62D4F1
+          Id: Target0
+    Metadata:
+      aws:cdk:path: Dev-BLEAEcsApp/EcsApp/ECSServiceActionEventRule/Resource
+  EcsAppECSServiceDeploymentEventRuleBD680642:
+    Type: AWS::Events::Rule
+    Properties:
+      Description: CloudWatch Event Rule to send notification on ECS Service deployment events.
+      EventPattern:
+        source:
+          - aws.ecs
+        detail-type:
+          - ECS Deployment State Change
+        detail:
+          eventType:
+            - WARN
+            - ERROR
+      State: ENABLED
+      Targets:
+        - Arn:
+            Ref: MonitoringAlarmTopicAF62D4F1
+          Id: Target0
+    Metadata:
+      aws:cdk:path: Dev-BLEAEcsApp/EcsApp/ECSServiceDeploymentEventRule/Resource
+  CDKMetadata:
+    Type: AWS::CDK::Metadata
+    Properties:
+      Analytics: v2:deflate64:H4sIAAAAAAAA/31U247aMBD9ln33urtUVdVHYC9CRVtE0L6uJmYIXowdecYgFOXfK9shCVupL5k5c8uZSzKRjz9+ycc7ONO92h7ujS5lUzCog4AzfTRkSTYbV2sl5jublfRcOaPVpTd2sAglKa9r1s5G3xi3QsNRNmtnMLqSHKpkrRVqD1w6ljHZgDrM92AtmrmzO10FD6ny4Uiy+Y0pMYqp0UARJKUVqCayea8T5/fVXKxCabQqQmmRO1qdtnaBcQNl5pTtg21K5JSGazfJEZXnxSqKN+BXYDzDRay8PgHjUHhhGb3FPiAz6dCUGdT+iJbFi3Hnpaui/6p2Qe+1erbb2mnLXXYPU/EdKBzHFKiC13x59S7UqZsbwxvy2fnDVJlEfUCZ82D40vT/3IP12bK/3BbuTTc8FrbySNQK+i6bWVCHPK5Oy2K4ihucwQwIW+G3JJsnYCiBcG4CMfquk77/p9nYcA0uUPn8zqfZNTGBhSUGq/KCT2j59ngp5dERLFToZZMbi6Wy2ICvkEeb7QO+elphXEWyWbpqjYw2jXLpqp74VW+FMi5sz8BqL5upAX/MRw7+GAf4AUTIJKdRCDRArJVxsC3BgFXaVqeJbKZ1bbRKC1s62M6SLzd9g8dxmhhtF3PVR/7cUc93BOO3R7IZDfZfdQ41KM2XlXcnvUU/uigSL+AriJ8fHZ5wp62+3uFXi7MM2qIf2brcAv1J5z1e1UKBiR90LDJ3Ie4AVV7iKhiz2XsXqv0c1B7XwaBYY+1Is/OXeG4jmH4DPWoFDEOBwI4UGG0r2QwvjKNJVG4tWWw8qIO2VZHzhsO/MbQC4z2SbBK5SCEYbFuxRnLB51Z7PV1DwVBpm34rfwLXgVth3RblJ307TR7k40/5cPdJWt/7YFkfUa6z/AtS0HulEAYAAA==
+    Metadata:
+      aws:cdk:path: Dev-BLEAEcsApp/CDKMetadata/Default
+  ExportsWriteruseast10F67B507DDE2E818:
+    Type: Custom::CrossRegionExportWriter
+    Properties:
+      ServiceToken:
+        Fn::GetAtt:
+          - CustomCrossRegionExportWriterCustomResourceProviderHandlerD8786E8A
+          - Arn
+      WriterProps:
+        region: us-east-1
+        exports:
+          /cdk/exports/Dev-BLEAEcsAppFrontend/DevBLEAEcsAppuseast2FnGetAttEcsAppAlb74CC21B3DNSName048839DD:
+            Fn::GetAtt:
+              - EcsAppAlb74CC21B3
+              - DNSName
+    UpdateReplacePolicy: Delete
+    DeletionPolicy: Delete
+    Metadata:
+      aws:cdk:path: Dev-BLEAEcsApp/ExportsWriteruseast10F67B507/Resource/Default
+  CustomCrossRegionExportWriterCustomResourceProviderRoleC951B1E1:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+      ManagedPolicyArns:
+        - Fn::Sub: arn:${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: Inline
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Resource:
+                  - Fn::Join:
+                      - ""
+                      - - "arn:"
+                        - Ref: AWS::Partition
+                        - :ssm:us-east-1:818740031270:parameter/cdk/exports/*
+                Action:
+                  - ssm:DeleteParameters
+                  - ssm:ListTagsForResource
+                  - ssm:GetParameters
+                  - ssm:PutParameter
+    Metadata:
+      aws:cdk:path: Dev-BLEAEcsApp/Custom::CrossRegionExportWriterCustomResourceProvider/Role
+  CustomCrossRegionExportWriterCustomResourceProviderHandlerD8786E8A:
+    Type: AWS::Lambda::Function
+    Properties:
+      Code:
+        S3Bucket: cdk-hnb659fds-assets-818740031270-us-east-2
+        S3Key: 246cb27aa0cb552c81fdca061092d0905aa4d2529e8b52b5598c069f18be51d7.zip
+      Timeout: 900
+      MemorySize: 128
+      Handler: __entrypoint__.handler
+      Role:
+        Fn::GetAtt:
+          - CustomCrossRegionExportWriterCustomResourceProviderRoleC951B1E1
+          - Arn
+      Runtime: nodejs20.x
+    DependsOn:
+      - CustomCrossRegionExportWriterCustomResourceProviderRoleC951B1E1
+    Metadata:
+      aws:cdk:path: Dev-BLEAEcsApp/Custom::CrossRegionExportWriterCustomResourceProvider/Handler
+      aws:asset:path: asset.246cb27aa0cb552c81fdca061092d0905aa4d2529e8b52b5598c069f18be51d7
+      aws:asset:property: Code
+Outputs:
+  ExportsOutputFnGetAttEcsAppAlb74CC21B3DNSName9BF6DA64:
+    Value:
+      Fn::GetAtt:
+        - EcsAppAlb74CC21B3
+        - DNSName
+    Export:
+      Name: Dev-BLEAEcsApp:ExportsOutputFnGetAttEcsAppAlb74CC21B3DNSName9BF6DA64
+  ExportsOutputRefMonitoringAlarmTopicAF62D4F1C969DD35:
+    Value:
+      Ref: MonitoringAlarmTopicAF62D4F1
+    Export:
+      Name: Dev-BLEAEcsApp:ExportsOutputRefMonitoringAlarmTopicAF62D4F1C969DD35
+  ExportsOutputFnGetAttEcsAppAlb74CC21B3LoadBalancerFullName06D09417:
+    Value:
+      Fn::GetAtt:
+        - EcsAppAlb74CC21B3
+        - LoadBalancerFullName
+    Export:
+      Name: Dev-BLEAEcsApp:ExportsOutputFnGetAttEcsAppAlb74CC21B3LoadBalancerFullName06D09417
+  ExportsOutputRefDatastoreAuroraCluster2FE23DD58102FDEF:
+    Value:
+      Ref: DatastoreAuroraCluster2FE23DD5
+    Export:
+      Name: Dev-BLEAEcsApp:ExportsOutputRefDatastoreAuroraCluster2FE23DD58102FDEF
+  ExportsOutputFnGetAttEcsAppAlbTgUnHealthyHostCount0E9D8FD9Arn7BD25624:
+    Value:
+      Fn::GetAtt:
+        - EcsAppAlbTgUnHealthyHostCount0E9D8FD9
+        - Arn
+    Export:
+      Name: Dev-BLEAEcsApp:ExportsOutputFnGetAttEcsAppAlbTgUnHealthyHostCount0E9D8FD9Arn7BD25624
+  ExportsOutputRefEcsAppCluster7C7DF57BDB05AF68:
+    Value:
+      Ref: EcsAppCluster7C7DF57B
+    Export:
+      Name: Dev-BLEAEcsApp:ExportsOutputRefEcsAppCluster7C7DF57BDB05AF68
+  ExportsOutputFnGetAttEcsAppServiceABC8901FName20F6B0C5:
+    Value:
+      Fn::GetAtt:
+        - EcsAppServiceABC8901F
+        - Name
+    Export:
+      Name: Dev-BLEAEcsApp:ExportsOutputFnGetAttEcsAppServiceABC8901FName20F6B0C5
+  ExportsOutputFnGetAttEcsAppAlbAlbSslListenerAppTargetGroupGroup00D988B0TargetGroupNameC50313E4:
+    Value:
+      Fn::GetAtt:
+        - EcsAppAlbAlbSslListenerAppTargetGroupGroup00D988B0
+        - TargetGroupName
+    Export:
+      Name: Dev-BLEAEcsApp:ExportsOutputFnGetAttEcsAppAlbAlbSslListenerAppTargetGroupGroup00D988B0TargetGroupNameC50313E4
+Parameters:
+  BootstrapVersion:
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /cdk-bootstrap/hnb659fds/version
+    Description: Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]
+

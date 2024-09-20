@@ -1,0 +1,450 @@
+Description: BLEA ECS App sample for guest accounts (uksb-1tupboc58) (tag:blea-guest-ecs-app-sample-monitoring)
+Resources:
+  CanaryCanaryArtifactBucket0C98EA34:
+    Type: AWS::S3::Bucket
+    Properties:
+      AccessControl: Private
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain
+    Metadata:
+      aws:cdk:path: Dev-BLEAEcsAppMonitoring/Canary/CanaryArtifactBucket/Resource
+  CanaryCanaryArtifactBucketPolicy001FA701:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket:
+        Ref: CanaryCanaryArtifactBucket0C98EA34
+      PolicyDocument:
+        Statement:
+          - Action: s3:*
+            Condition:
+              Bool:
+                aws:SecureTransport: "false"
+            Effect: Deny
+            Principal:
+              AWS: "*"
+            Resource:
+              - Fn::GetAtt:
+                  - CanaryCanaryArtifactBucket0C98EA34
+                  - Arn
+              - Fn::Join:
+                  - ""
+                  - - Fn::GetAtt:
+                        - CanaryCanaryArtifactBucket0C98EA34
+                        - Arn
+                    - /*
+        Version: "2012-10-17"
+    Metadata:
+      aws:cdk:path: Dev-BLEAEcsAppMonitoring/Canary/CanaryArtifactBucket/Policy/Resource
+  CanaryServiceRole6F4F0A66:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+        Version: "2012-10-17"
+      Policies:
+        - PolicyDocument:
+            Statement:
+              - Action: s3:ListAllMyBuckets
+                Effect: Allow
+                Resource: "*"
+              - Action: s3:GetBucketLocation
+                Effect: Allow
+                Resource:
+                  Fn::GetAtt:
+                    - CanaryCanaryArtifactBucket0C98EA34
+                    - Arn
+              - Action: s3:PutObject
+                Effect: Allow
+                Resource:
+                  Fn::Join:
+                    - ""
+                    - - Fn::GetAtt:
+                          - CanaryCanaryArtifactBucket0C98EA34
+                          - Arn
+                      - /*
+              - Action: cloudwatch:PutMetricData
+                Condition:
+                  StringEquals:
+                    cloudwatch:namespace: CloudWatchSynthetics
+                Effect: Allow
+                Resource: "*"
+              - Action:
+                  - logs:CreateLogStream
+                  - logs:CreateLogGroup
+                  - logs:PutLogEvents
+                Effect: Allow
+                Resource:
+                  Fn::Join:
+                    - ""
+                    - - "arn:"
+                      - Ref: AWS::Partition
+                      - :logs:us-east-2:818740031270:log-group:/aws/lambda/cwsyn-*
+            Version: "2012-10-17"
+          PolicyName: canaryPolicy
+    Metadata:
+      aws:cdk:path: Dev-BLEAEcsAppMonitoring/Canary/Canary/ServiceRole/Resource
+  CanaryFA053226:
+    Type: AWS::Synthetics::Canary
+    Properties:
+      ArtifactS3Location:
+        Fn::Join:
+          - ""
+          - - s3://
+            - Ref: CanaryCanaryArtifactBucket0C98EA34
+      Code:
+        Handler: index.handler
+        S3Bucket: cdk-hnb659fds-assets-818740031270-us-east-2
+        S3Key: 1e64e462d93160eb5230b00e665705bfaf2299d9c302ab56dd093bccbe387c4f.zip
+      ExecutionRoleArn:
+        Fn::GetAtt:
+          - CanaryServiceRole6F4F0A66
+          - Arn
+      Name: devbleaecsappmo8d5431
+      RunConfig:
+        EnvironmentVariables:
+          TARGETHOST:
+            Fn::GetAtt:
+              - ExportsReader8B249524
+              - /cdk/exports/Dev-BLEAEcsAppMonitoring/DevBLEAEcsAppFrontenduseast1FnGetAttFrontendDistributionC0C89627DomainName34318E09
+          TARGETPATH: /
+      RuntimeVersion: syn-nodejs-puppeteer-6.0
+      Schedule:
+        DurationInSeconds: "0"
+        Expression: rate(1 minute)
+      StartCanaryAfterCreation: true
+    Metadata:
+      aws:cdk:path: Dev-BLEAEcsAppMonitoring/Canary/Canary/Resource
+  CanaryCanalyPolicy0AA33B6D:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Action: s3:GetBucketLocation
+            Effect: Allow
+            Resource:
+              Fn::GetAtt:
+                - CanaryCanaryArtifactBucket0C98EA34
+                - Arn
+        Version: "2012-10-17"
+      PolicyName: CanaryCanalyPolicy0AA33B6D
+      Roles:
+        - Ref: CanaryServiceRole6F4F0A66
+    Metadata:
+      aws:cdk:path: Dev-BLEAEcsAppMonitoring/Canary/CanalyPolicy/Resource
+  CanaryCanaryDurationAlarm9CB7D45A:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      ActionsEnabled: true
+      AlarmActions:
+        - Fn::ImportValue: Dev-BLEAEcsApp:ExportsOutputRefMonitoringAlarmTopicAF62D4F1C969DD35
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      DatapointsToAlarm: 2
+      Dimensions:
+        - Name: CanaryName
+          Value:
+            Ref: CanaryFA053226
+      EvaluationPeriods: 2
+      MetricName: Duration
+      Namespace: CloudWatchSynthetics
+      Period: 60
+      Statistic: Average
+      Threshold: 400
+    Metadata:
+      aws:cdk:path: Dev-BLEAEcsAppMonitoring/Canary/CanaryDurationAlarm/Resource
+  CanaryCanaryFailedAlarm6F0AEBED:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      ActionsEnabled: true
+      AlarmActions:
+        - Fn::ImportValue: Dev-BLEAEcsApp:ExportsOutputRefMonitoringAlarmTopicAF62D4F1C969DD35
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      DatapointsToAlarm: 3
+      Dimensions:
+        - Name: CanaryName
+          Value:
+            Ref: CanaryFA053226
+      EvaluationPeriods: 3
+      MetricName: Failed
+      Namespace: CloudWatchSynthetics
+      Period: 60
+      Statistic: Average
+      Threshold: 0.5
+      TreatMissingData: notBreaching
+    Metadata:
+      aws:cdk:path: Dev-BLEAEcsAppMonitoring/Canary/CanaryFailedAlarm/Resource
+  Dashboard7A714131:
+    Type: AWS::CloudWatch::Dashboard
+    Properties:
+      DashboardBody:
+        Fn::Join:
+          - ""
+          - - '{"widgets":[{"type":"text","width":24,"height":1,"x":0,"y":0,"properties":{"markdown":"# Canary"}},{"type":"metric","width":12,"height":6,"x":0,"y":1,"properties":{"view":"timeSeries","title":"Canary response time","region":"'
+            - Ref: AWS::Region
+            - '","annotations":{"alarms":["'
+            - Fn::GetAtt:
+                - CanaryCanaryDurationAlarm9CB7D45A
+                - Arn
+            - '"]},"yAxis":{}}},{"type":"metric","width":12,"height":6,"x":12,"y":1,"properties":{"view":"timeSeries","title":"Canary request failed","region":"'
+            - Ref: AWS::Region
+            - '","annotations":{"alarms":["'
+            - Fn::GetAtt:
+                - CanaryCanaryFailedAlarm6F0AEBED
+                - Arn
+            - '"]},"yAxis":{}}},{"type":"text","width":24,"height":1,"x":0,"y":7,"properties":{"markdown":"# Requests"}},{"type":"metric","width":6,"height":6,"x":0,"y":8,"properties":{"view":"timeSeries","title":"CloudFront Requests","region":"'
+            - Ref: AWS::Region
+            - '","stacked":false,"metrics":[["AWS/CloudFront","Requests","DistributionId","'
+            - Fn::GetAtt:
+                - ExportsReader8B249524
+                - /cdk/exports/Dev-BLEAEcsAppMonitoring/DevBLEAEcsAppFrontenduseast1RefFrontendDistributionC0C89627E26C774F
+            - "\",\"Region\",\"Global\",{\"label\":\"${PROP('MetricName')} /${PROP('Period')}sec\",\"region\":\"us-east-1\",\"period\":60,\"stat\":\"Sum\"}]],\"yAxis\":{}}},{\"type\":\"metric\",\"width\":6,\"height\":6,\"x\":6,\"y\":8,\"properties\":{\"view\":\"timeSeries\",\"title\":\"ALB Requests\",\"region\":\""
+            - Ref: AWS::Region
+            - '","stacked":false,"metrics":[["AWS/ApplicationELB","RequestCount","LoadBalancer","'
+            - Fn::ImportValue: Dev-BLEAEcsApp:ExportsOutputFnGetAttEcsAppAlb74CC21B3LoadBalancerFullName06D09417
+            - "\",{\"label\":\"${PROP('MetricName')} /${PROP('Period')}sec\",\"period\":60,\"stat\":\"Sum\"}],[\"AWS/ApplicationELB\",\"NewConnectionCount\",\"LoadBalancer\",\""
+            - Fn::ImportValue: Dev-BLEAEcsApp:ExportsOutputFnGetAttEcsAppAlb74CC21B3LoadBalancerFullName06D09417
+            - "\",{\"label\":\"${PROP('MetricName')} /${PROP('Period')}sec\",\"period\":60,\"stat\":\"Sum\"}],[\"AWS/ApplicationELB\",\"RejectedConnectionCount\",\"LoadBalancer\",\""
+            - Fn::ImportValue: Dev-BLEAEcsApp:ExportsOutputFnGetAttEcsAppAlb74CC21B3LoadBalancerFullName06D09417
+            - "\",{\"label\":\"${PROP('MetricName')} /${PROP('Period')}sec\",\"period\":60,\"stat\":\"Sum\"}]],\"yAxis\":{}}},{\"type\":\"metric\",\"width\":6,\"height\":6,\"x\":12,\"y\":8,\"properties\":{\"view\":\"timeSeries\",\"title\":\"Target Group Requests\",\"region\":\""
+            - Ref: AWS::Region
+            - '","stacked":false,"metrics":[["AWS/ApplicationELB","HTTPCode_Target_2XX_Count","LoadBalancer","'
+            - Fn::ImportValue: Dev-BLEAEcsApp:ExportsOutputFnGetAttEcsAppAlb74CC21B3LoadBalancerFullName06D09417
+            - "\",{\"label\":\"${PROP('MetricName')} /${PROP('Period')}sec\",\"period\":60,\"stat\":\"Sum\"}]],\"yAxis\":{}}},{\"type\":\"metric\",\"width\":6,\"height\":6,\"x\":18,\"y\":8,\"properties\":{\"view\":\"timeSeries\",\"title\":\"Aurora Connections\",\"region\":\""
+            - Ref: AWS::Region
+            - '","stacked":false,"metrics":[["AWS/RDS","DatabaseConnections","DBClusterIdentifier","'
+            - Fn::ImportValue: Dev-BLEAEcsApp:ExportsOutputRefDatastoreAuroraCluster2FE23DD58102FDEF
+            - "\",\"Role\",\"WRITER\",{\"label\":\"Writer: ${PROP('MetricName')} /${PROP('Period')}sec\",\"period\":60,\"stat\":\"Sum\"}],[\"AWS/RDS\",\"DatabaseConnections\",\"DBClusterIdentifier\",\""
+            - Fn::ImportValue: Dev-BLEAEcsApp:ExportsOutputRefDatastoreAuroraCluster2FE23DD58102FDEF
+            - "\",\"Role\",\"READER\",{\"label\":\"Reader: ${PROP('MetricName')} /${PROP('Period')}sec\",\"period\":60,\"stat\":\"Sum\"}]],\"yAxis\":{}}},{\"type\":\"text\",\"width\":24,\"height\":1,\"x\":0,\"y\":14,\"properties\":{\"markdown\":\"# Response Time\"}},{\"type\":\"metric\",\"width\":8,\"height\":6,\"x\":0,\"y\":15,\"properties\":{\"view\":\"timeSeries\",\"title\":\"Target Group Response Time\",\"region\":\""
+            - Ref: AWS::Region
+            - '","stacked":false,"metrics":[["AWS/ApplicationELB","TargetResponseTime","LoadBalancer","'
+            - Fn::ImportValue: Dev-BLEAEcsApp:ExportsOutputFnGetAttEcsAppAlb74CC21B3LoadBalancerFullName06D09417
+            - "\",{\"label\":\"${PROP('MetricName')} /${PROP('Period')}sec\",\"period\":60}]],\"yAxis\":{}}},{\"type\":\"metric\",\"width\":8,\"height\":6,\"x\":8,\"y\":15,\"properties\":{\"view\":\"timeSeries\",\"title\":\"Aurora Operation Lantency (Writer)\",\"region\":\""
+            - Ref: AWS::Region
+            - '","stacked":false,"metrics":[["AWS/RDS","InsertLatency","DBClusterIdentifier","'
+            - Fn::ImportValue: Dev-BLEAEcsApp:ExportsOutputRefDatastoreAuroraCluster2FE23DD58102FDEF
+            - "\",\"Role\",\"WRITER\",{\"label\":\"${PROP('MetricName')} /${PROP('Period')}sec\",\"period\":60}],[\"AWS/RDS\",\"SelectLatency\",\"DBClusterIdentifier\",\""
+            - Fn::ImportValue: Dev-BLEAEcsApp:ExportsOutputRefDatastoreAuroraCluster2FE23DD58102FDEF
+            - "\",\"Role\",\"WRITER\",{\"label\":\"${PROP('MetricName')} /${PROP('Period')}sec\",\"period\":60}],[\"AWS/RDS\",\"UpdateLatency\",\"DBClusterIdentifier\",\""
+            - Fn::ImportValue: Dev-BLEAEcsApp:ExportsOutputRefDatastoreAuroraCluster2FE23DD58102FDEF
+            - "\",\"Role\",\"WRITER\",{\"label\":\"${PROP('MetricName')} /${PROP('Period')}sec\",\"period\":60}],[\"AWS/RDS\",\"CommitLatency\",\"DBClusterIdentifier\",\""
+            - Fn::ImportValue: Dev-BLEAEcsApp:ExportsOutputRefDatastoreAuroraCluster2FE23DD58102FDEF
+            - "\",\"Role\",\"WRITER\",{\"label\":\"${PROP('MetricName')} /${PROP('Period')}sec\",\"period\":60}],[\"AWS/RDS\",\"DDLLatency\",\"DBClusterIdentifier\",\""
+            - Fn::ImportValue: Dev-BLEAEcsApp:ExportsOutputRefDatastoreAuroraCluster2FE23DD58102FDEF
+            - "\",\"Role\",\"WRITER\",{\"label\":\"${PROP('MetricName')} /${PROP('Period')}sec\",\"period\":60}],[\"AWS/RDS\",\"DeleteLatency\",\"DBClusterIdentifier\",\""
+            - Fn::ImportValue: Dev-BLEAEcsApp:ExportsOutputRefDatastoreAuroraCluster2FE23DD58102FDEF
+            - "\",\"Role\",\"WRITER\",{\"label\":\"${PROP('MetricName')} /${PROP('Period')}sec\",\"period\":60}],[\"AWS/RDS\",\"DMLLatency\",\"DBClusterIdentifier\",\""
+            - Fn::ImportValue: Dev-BLEAEcsApp:ExportsOutputRefDatastoreAuroraCluster2FE23DD58102FDEF
+            - "\",\"Role\",\"WRITER\",{\"label\":\"${PROP('MetricName')} /${PROP('Period')}sec\",\"period\":60}],[\"AWS/RDS\",\"ReadLatency\",\"DBClusterIdentifier\",\""
+            - Fn::ImportValue: Dev-BLEAEcsApp:ExportsOutputRefDatastoreAuroraCluster2FE23DD58102FDEF
+            - "\",\"Role\",\"WRITER\",{\"label\":\"${PROP('MetricName')} /${PROP('Period')}sec\",\"period\":60,\"yAxis\":\"right\"}],[\"AWS/RDS\",\"WriteLatency\",\"DBClusterIdentifier\",\""
+            - Fn::ImportValue: Dev-BLEAEcsApp:ExportsOutputRefDatastoreAuroraCluster2FE23DD58102FDEF
+            - "\",\"Role\",\"WRITER\",{\"label\":\"${PROP('MetricName')} /${PROP('Period')}sec\",\"period\":60,\"yAxis\":\"right\"}]],\"yAxis\":{}}},{\"type\":\"metric\",\"width\":8,\"height\":6,\"x\":16,\"y\":15,\"properties\":{\"view\":\"timeSeries\",\"title\":\"Aurora Operation Lantency (Reader)\",\"region\":\""
+            - Ref: AWS::Region
+            - '","stacked":false,"metrics":[["AWS/RDS","SelectLatency","DBClusterIdentifier","'
+            - Fn::ImportValue: Dev-BLEAEcsApp:ExportsOutputRefDatastoreAuroraCluster2FE23DD58102FDEF
+            - "\",\"Role\",\"READER\",{\"label\":\"${PROP('MetricName')} /${PROP('Period')}sec\",\"period\":60}],[\"AWS/RDS\",\"ReadLatency\",\"DBClusterIdentifier\",\""
+            - Fn::ImportValue: Dev-BLEAEcsApp:ExportsOutputRefDatastoreAuroraCluster2FE23DD58102FDEF
+            - "\",\"Role\",\"READER\",{\"label\":\"${PROP('MetricName')} /${PROP('Period')}sec\",\"period\":60,\"yAxis\":\"right\"}],[\"AWS/RDS\",\"WriteLatency\",\"DBClusterIdentifier\",\""
+            - Fn::ImportValue: Dev-BLEAEcsApp:ExportsOutputRefDatastoreAuroraCluster2FE23DD58102FDEF
+            - "\",\"Role\",\"READER\",{\"label\":\"${PROP('MetricName')} /${PROP('Period')}sec\",\"period\":60,\"yAxis\":\"right\"}]],\"yAxis\":{}}},{\"type\":\"text\",\"width\":24,\"height\":1,\"x\":0,\"y\":21,\"properties\":{\"markdown\":\"# Errors\"}},{\"type\":\"metric\",\"width\":6,\"height\":6,\"x\":0,\"y\":22,\"properties\":{\"view\":\"timeSeries\",\"title\":\"CloudFront Error Rates\",\"region\":\""
+            - Ref: AWS::Region
+            - '","stacked":true,"metrics":[["AWS/CloudFront","5xxErrorRate","DistributionId","'
+            - Fn::GetAtt:
+                - ExportsReader8B249524
+                - /cdk/exports/Dev-BLEAEcsAppMonitoring/DevBLEAEcsAppFrontenduseast1RefFrontendDistributionC0C89627E26C774F
+            - "\",\"Region\",\"Global\",{\"label\":\"${PROP('MetricName')} /${PROP('Period')}sec\",\"region\":\"us-east-1\",\"period\":60}],[\"AWS/CloudFront\",\"4xxErrorRate\",\"DistributionId\",\""
+            - Fn::GetAtt:
+                - ExportsReader8B249524
+                - /cdk/exports/Dev-BLEAEcsAppMonitoring/DevBLEAEcsAppFrontenduseast1RefFrontendDistributionC0C89627E26C774F
+            - "\",\"Region\",\"Global\",{\"label\":\"${PROP('MetricName')} /${PROP('Period')}sec\",\"region\":\"us-east-1\",\"period\":60}]],\"yAxis\":{}}},{\"type\":\"metric\",\"width\":6,\"height\":6,\"x\":6,\"y\":22,\"properties\":{\"view\":\"timeSeries\",\"title\":\"ALB Errors\",\"region\":\""
+            - Ref: AWS::Region
+            - '","stacked":false,"metrics":[["AWS/ApplicationELB","ClientTLSNegotiationErrorCount","LoadBalancer","'
+            - Fn::ImportValue: Dev-BLEAEcsApp:ExportsOutputFnGetAttEcsAppAlb74CC21B3LoadBalancerFullName06D09417
+            - "\",{\"label\":\"${PROP('MetricName')} /${PROP('Period')}sec\",\"period\":60,\"stat\":\"Sum\"}],[\"AWS/ApplicationELB\",\"HTTPCode_ELB_5XX_Count\",\"LoadBalancer\",\""
+            - Fn::ImportValue: Dev-BLEAEcsApp:ExportsOutputFnGetAttEcsAppAlb74CC21B3LoadBalancerFullName06D09417
+            - "\",{\"label\":\"${PROP('MetricName')} /${PROP('Period')}sec\",\"period\":60,\"stat\":\"Sum\"}],[\"AWS/ApplicationELB\",\"HTTPCode_ELB_4XX_Count\",\"LoadBalancer\",\""
+            - Fn::ImportValue: Dev-BLEAEcsApp:ExportsOutputFnGetAttEcsAppAlb74CC21B3LoadBalancerFullName06D09417
+            - "\",{\"label\":\"${PROP('MetricName')} /${PROP('Period')}sec\",\"period\":60,\"stat\":\"Sum\"}]],\"yAxis\":{}}},{\"type\":\"metric\",\"width\":6,\"height\":6,\"x\":12,\"y\":22,\"properties\":{\"view\":\"timeSeries\",\"title\":\"Alarm for UnHealthy Host in Target Group\",\"region\":\""
+            - Ref: AWS::Region
+            - '","annotations":{"alarms":["'
+            - Fn::ImportValue: Dev-BLEAEcsApp:ExportsOutputFnGetAttEcsAppAlbTgUnHealthyHostCount0E9D8FD9Arn7BD25624
+            - '"]},"yAxis":{}}},{"type":"metric","width":6,"height":6,"x":18,"y":22,"properties":{"view":"timeSeries","title":"Target Group Errors","region":"'
+            - Ref: AWS::Region
+            - '","stacked":true,"metrics":[["AWS/ApplicationELB","HTTPCode_Target_5XX_Count","LoadBalancer","'
+            - Fn::ImportValue: Dev-BLEAEcsApp:ExportsOutputFnGetAttEcsAppAlb74CC21B3LoadBalancerFullName06D09417
+            - "\",{\"label\":\"${PROP('MetricName')} /${PROP('Period')}sec\",\"period\":60,\"stat\":\"Sum\"}],[\"AWS/ApplicationELB\",\"HTTPCode_Target_4XX_Count\",\"LoadBalancer\",\""
+            - Fn::ImportValue: Dev-BLEAEcsApp:ExportsOutputFnGetAttEcsAppAlb74CC21B3LoadBalancerFullName06D09417
+            - "\",{\"label\":\"${PROP('MetricName')} /${PROP('Period')}sec\",\"period\":60,\"stat\":\"Sum\"}],[\"AWS/ApplicationELB\",\"TargetConnectionErrorCount\",\"LoadBalancer\",\""
+            - Fn::ImportValue: Dev-BLEAEcsApp:ExportsOutputFnGetAttEcsAppAlb74CC21B3LoadBalancerFullName06D09417
+            - "\",{\"label\":\"${PROP('MetricName')} /${PROP('Period')}sec\",\"period\":60,\"stat\":\"Sum\"}],[\"AWS/ApplicationELB\",\"TargetTLSNegotiationErrorCount\",\"LoadBalancer\",\""
+            - Fn::ImportValue: Dev-BLEAEcsApp:ExportsOutputFnGetAttEcsAppAlb74CC21B3LoadBalancerFullName06D09417
+            - "\",{\"label\":\"${PROP('MetricName')} /${PROP('Period')}sec\",\"period\":60,\"stat\":\"Sum\"}]],\"yAxis\":{}}},{\"type\":\"text\",\"width\":24,\"height\":1,\"x\":0,\"y\":28,\"properties\":{\"markdown\":\"# Resources\"}},{\"type\":\"metric\",\"width\":6,\"height\":6,\"x\":0,\"y\":29,\"properties\":{\"view\":\"timeSeries\",\"title\":\"ECS CPU Utilization\",\"region\":\""
+            - Ref: AWS::Region
+            - '","stacked":false,"metrics":[["AWS/ECS","CPUUtilization","ClusterName","'
+            - Fn::ImportValue: Dev-BLEAEcsApp:ExportsOutputRefEcsAppCluster7C7DF57BDB05AF68
+            - '","ServiceName","'
+            - Fn::ImportValue: Dev-BLEAEcsApp:ExportsOutputFnGetAttEcsAppServiceABC8901FName20F6B0C5
+            - "\",{\"label\":\"${PROP('MetricName')} /${PROP('Period')}sec\",\"period\":60}]],\"yAxis\":{}}},{\"type\":\"metric\",\"width\":6,\"height\":6,\"x\":6,\"y\":29,\"properties\":{\"view\":\"timeSeries\",\"title\":\"ECS Memory Utilization\",\"region\":\""
+            - Ref: AWS::Region
+            - '","stacked":false,"metrics":[["AWS/ECS","MemoryUtilization","ClusterName","'
+            - Fn::ImportValue: Dev-BLEAEcsApp:ExportsOutputRefEcsAppCluster7C7DF57BDB05AF68
+            - '","ServiceName","'
+            - Fn::ImportValue: Dev-BLEAEcsApp:ExportsOutputFnGetAttEcsAppServiceABC8901FName20F6B0C5
+            - "\",{\"label\":\"${PROP('MetricName')} /${PROP('Period')}sec\",\"period\":60}]],\"yAxis\":{}}},{\"type\":\"metric\",\"width\":6,\"height\":6,\"x\":12,\"y\":29,\"properties\":{\"view\":\"timeSeries\",\"title\":\"ECS Desired Task Count\",\"region\":\""
+            - Ref: AWS::Region
+            - '","stacked":false,"metrics":[["ECS/ContainerInsights","DesiredTaskCount","ClusterName","'
+            - Fn::ImportValue: Dev-BLEAEcsApp:ExportsOutputRefEcsAppCluster7C7DF57BDB05AF68
+            - '","ServiceName","'
+            - Fn::ImportValue: Dev-BLEAEcsApp:ExportsOutputFnGetAttEcsAppServiceABC8901FName20F6B0C5
+            - "\",{\"label\":\"${PROP('MetricName')} /${PROP('Period')}sec\",\"period\":60}]],\"yAxis\":{}}},{\"type\":\"metric\",\"width\":6,\"height\":6,\"x\":18,\"y\":29,\"properties\":{\"view\":\"timeSeries\",\"title\":\"ECS Task Count\",\"region\":\""
+            - Ref: AWS::Region
+            - '","stacked":true,"metrics":[["ECS/ContainerInsights","RunningTaskCount","ClusterName","'
+            - Fn::ImportValue: Dev-BLEAEcsApp:ExportsOutputRefEcsAppCluster7C7DF57BDB05AF68
+            - '","ServiceName","'
+            - Fn::ImportValue: Dev-BLEAEcsApp:ExportsOutputFnGetAttEcsAppServiceABC8901FName20F6B0C5
+            - "\",{\"label\":\"${PROP('MetricName')} /${PROP('Period')}sec\",\"period\":60}],[\"ECS/ContainerInsights\",\"PendingTaskCount\",\"ClusterName\",\""
+            - Fn::ImportValue: Dev-BLEAEcsApp:ExportsOutputRefEcsAppCluster7C7DF57BDB05AF68
+            - '","ServiceName","'
+            - Fn::ImportValue: Dev-BLEAEcsApp:ExportsOutputFnGetAttEcsAppServiceABC8901FName20F6B0C5
+            - "\",{\"label\":\"${PROP('MetricName')} /${PROP('Period')}sec\",\"period\":60}]],\"yAxis\":{}}},{\"type\":\"metric\",\"width\":12,\"height\":6,\"x\":0,\"y\":35,\"properties\":{\"view\":\"timeSeries\",\"title\":\"ECS Auto Scaling with Requests per tasks\",\"region\":\""
+            - Ref: AWS::Region
+            - '","stacked":false,"metrics":[["AWS/ApplicationELB","RequestCountPerTarget","LoadBalancer","'
+            - Fn::ImportValue: Dev-BLEAEcsApp:ExportsOutputFnGetAttEcsAppAlb74CC21B3LoadBalancerFullName06D09417
+            - '","TargetGroup","'
+            - Fn::ImportValue: Dev-BLEAEcsApp:ExportsOutputFnGetAttEcsAppAlbAlbSslListenerAppTargetGroupGroup00D988B0TargetGroupNameC50313E4
+            - "\",{\"label\":\"${PROP('MetricName')} /${PROP('Period')}sec\",\"period\":60,\"stat\":\"Sum\"}],[\"ECS/ContainerInsights\",\"RunningTaskCount\",\"ClusterName\",\""
+            - Fn::ImportValue: Dev-BLEAEcsApp:ExportsOutputRefEcsAppCluster7C7DF57BDB05AF68
+            - '","ServiceName","'
+            - Fn::ImportValue: Dev-BLEAEcsApp:ExportsOutputFnGetAttEcsAppServiceABC8901FName20F6B0C5
+            - "\",{\"label\":\"${PROP('MetricName')} /${PROP('Period')}sec\",\"period\":60,\"yAxis\":\"right\"}],[\"ECS/ContainerInsights\",\"PendingTaskCount\",\"ClusterName\",\""
+            - Fn::ImportValue: Dev-BLEAEcsApp:ExportsOutputRefEcsAppCluster7C7DF57BDB05AF68
+            - '","ServiceName","'
+            - Fn::ImportValue: Dev-BLEAEcsApp:ExportsOutputFnGetAttEcsAppServiceABC8901FName20F6B0C5
+            - "\",{\"label\":\"${PROP('MetricName')} /${PROP('Period')}sec\",\"period\":60,\"yAxis\":\"right\"}]],\"annotations\":{\"horizontal\":[{\"value\":10000,\"label\":\"Threshold: Requests per tasks\",\"color\":\"#aec7e8\",\"fill\":\"below\",\"yAxis\":\"left\"}]},\"yAxis\":{}}},{\"type\":\"metric\",\"width\":12,\"height\":6,\"x\":12,\"y\":35,\"properties\":{\"view\":\"timeSeries\",\"title\":\"ECS Auto Scaling with CPU Utilization\",\"region\":\""
+            - Ref: AWS::Region
+            - '","stacked":false,"metrics":[["AWS/ECS","CPUUtilization","ClusterName","'
+            - Fn::ImportValue: Dev-BLEAEcsApp:ExportsOutputRefEcsAppCluster7C7DF57BDB05AF68
+            - '","ServiceName","'
+            - Fn::ImportValue: Dev-BLEAEcsApp:ExportsOutputFnGetAttEcsAppServiceABC8901FName20F6B0C5
+            - "\",{\"label\":\"${PROP('MetricName')} /${PROP('Period')}sec\",\"period\":60}],[\"ECS/ContainerInsights\",\"RunningTaskCount\",\"ClusterName\",\""
+            - Fn::ImportValue: Dev-BLEAEcsApp:ExportsOutputRefEcsAppCluster7C7DF57BDB05AF68
+            - '","ServiceName","'
+            - Fn::ImportValue: Dev-BLEAEcsApp:ExportsOutputFnGetAttEcsAppServiceABC8901FName20F6B0C5
+            - "\",{\"label\":\"${PROP('MetricName')} /${PROP('Period')}sec\",\"period\":60,\"yAxis\":\"right\"}],[\"ECS/ContainerInsights\",\"PendingTaskCount\",\"ClusterName\",\""
+            - Fn::ImportValue: Dev-BLEAEcsApp:ExportsOutputRefEcsAppCluster7C7DF57BDB05AF68
+            - '","ServiceName","'
+            - Fn::ImportValue: Dev-BLEAEcsApp:ExportsOutputFnGetAttEcsAppServiceABC8901FName20F6B0C5
+            - "\",{\"label\":\"${PROP('MetricName')} /${PROP('Period')}sec\",\"period\":60,\"yAxis\":\"right\"}]],\"annotations\":{\"horizontal\":[{\"value\":50,\"label\":\"Threshold: CPU Utilization\",\"color\":\"#aec7e8\",\"fill\":\"below\",\"yAxis\":\"left\"}]},\"yAxis\":{}}},{\"type\":\"metric\",\"width\":6,\"height\":6,\"x\":0,\"y\":41,\"properties\":{\"view\":\"timeSeries\",\"title\":\"Aurora CPU Utilization\",\"region\":\""
+            - Ref: AWS::Region
+            - '","stacked":false,"metrics":[["AWS/RDS","CPUUtilization","DBClusterIdentifier","'
+            - Fn::ImportValue: Dev-BLEAEcsApp:ExportsOutputRefDatastoreAuroraCluster2FE23DD58102FDEF
+            - "\",\"Role\",\"WRITER\",{\"label\":\"Writer: ${PROP('MetricName')} /${PROP('Period')}sec\",\"period\":60}],[\"AWS/RDS\",\"CPUUtilization\",\"DBClusterIdentifier\",\""
+            - Fn::ImportValue: Dev-BLEAEcsApp:ExportsOutputRefDatastoreAuroraCluster2FE23DD58102FDEF
+            - "\",\"Role\",\"READER\",{\"label\":\"Reader: ${PROP('MetricName')} /${PROP('Period')}sec\",\"period\":60}]],\"yAxis\":{}}},{\"type\":\"metric\",\"width\":6,\"height\":6,\"x\":6,\"y\":41,\"properties\":{\"view\":\"timeSeries\",\"title\":\"Aurora Free Memory\",\"region\":\""
+            - Ref: AWS::Region
+            - '","stacked":false,"metrics":[["AWS/RDS","FreeableMemory","DBClusterIdentifier","'
+            - Fn::ImportValue: Dev-BLEAEcsApp:ExportsOutputRefDatastoreAuroraCluster2FE23DD58102FDEF
+            - "\",\"Role\",\"WRITER\",{\"label\":\"Writer: ${PROP('MetricName')} /${PROP('Period')}sec\",\"period\":60}],[\"AWS/RDS\",\"FreeableMemory\",\"DBClusterIdentifier\",\""
+            - Fn::ImportValue: Dev-BLEAEcsApp:ExportsOutputRefDatastoreAuroraCluster2FE23DD58102FDEF
+            - "\",\"Role\",\"READER\",{\"label\":\"Reader: ${PROP('MetricName')} /${PROP('Period')}sec\",\"period\":60}]],\"yAxis\":{}}},{\"type\":\"metric\",\"width\":6,\"height\":6,\"x\":12,\"y\":41,\"properties\":{\"view\":\"timeSeries\",\"title\":\"Aurora Free Local Storage\",\"region\":\""
+            - Ref: AWS::Region
+            - '","stacked":false,"metrics":[["AWS/RDS","FreeLocalStorage","DBClusterIdentifier","'
+            - Fn::ImportValue: Dev-BLEAEcsApp:ExportsOutputRefDatastoreAuroraCluster2FE23DD58102FDEF
+            - "\",\"Role\",\"WRITER\",{\"label\":\"Writer: ${PROP('MetricName')} /${PROP('Period')}sec\",\"period\":60}],[\"AWS/RDS\",\"FreeLocalStorage\",\"DBClusterIdentifier\",\""
+            - Fn::ImportValue: Dev-BLEAEcsApp:ExportsOutputRefDatastoreAuroraCluster2FE23DD58102FDEF
+            - "\",\"Role\",\"READER\",{\"label\":\"Reader: ${PROP('MetricName')} /${PROP('Period')}sec\",\"period\":60}]],\"yAxis\":{}}}]}"
+      DashboardName: BLEA-ECS-App-Sample
+    Metadata:
+      aws:cdk:path: Dev-BLEAEcsAppMonitoring/Dashboard/Dashboard/Resource
+  CDKMetadata:
+    Type: AWS::CDK::Metadata
+    Properties:
+      Analytics: v2:deflate64:H4sIAAAAAAAA/0WNXQrCMBCEz+L7drWKiI/+HEDqAWRNVxubJpBNLRJyd2lT9OmbmR1m11hu91guaJBC1W1h9B3jNZBqgQa5RdlgPPaq5QCnh51VxsUZrT7/ePbZHEk4gXxsaDhoJRhPZMlP9awSaOowVs7wGE78T2aVQDY3EuEgeBgByri+HiioBuPBkO/GchZnkubuyNdj9DMpQcXieq8YpolroKe2z+nnfEhgXc34kuV7vcJyh6vFS7QufG+D7hirzC8M5K35LAEAAA==
+    Metadata:
+      aws:cdk:path: Dev-BLEAEcsAppMonitoring/CDKMetadata/Default
+  ExportsReader8B249524:
+    Type: Custom::CrossRegionExportReader
+    Properties:
+      ServiceToken:
+        Fn::GetAtt:
+          - CustomCrossRegionExportReaderCustomResourceProviderHandler46647B68
+          - Arn
+      ReaderProps:
+        region: us-east-2
+        prefix: Dev-BLEAEcsAppMonitoring
+        imports:
+          /cdk/exports/Dev-BLEAEcsAppMonitoring/DevBLEAEcsAppFrontenduseast1FnGetAttFrontendDistributionC0C89627DomainName34318E09: "{{resolve:ssm:/cdk/exports/Dev-BLEAEcsAppMonitoring/DevBLEAEcsAppFrontenduseast1FnGetAttFrontendDistributionC0C89627DomainName34318E09}}"
+          /cdk/exports/Dev-BLEAEcsAppMonitoring/DevBLEAEcsAppFrontenduseast1RefFrontendDistributionC0C89627E26C774F: "{{resolve:ssm:/cdk/exports/Dev-BLEAEcsAppMonitoring/DevBLEAEcsAppFrontenduseast1RefFrontendDistributionC0C89627E26C774F}}"
+    UpdateReplacePolicy: Delete
+    DeletionPolicy: Delete
+    Metadata:
+      aws:cdk:path: Dev-BLEAEcsAppMonitoring/ExportsReader/Resource/Default
+  CustomCrossRegionExportReaderCustomResourceProviderRole10531BBD:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+      ManagedPolicyArns:
+        - Fn::Sub: arn:${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: Inline
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Resource:
+                  Fn::Join:
+                    - ""
+                    - - "arn:"
+                      - Ref: AWS::Partition
+                      - :ssm:us-east-2:818740031270:parameter/cdk/exports/Dev-BLEAEcsAppMonitoring/*
+                Action:
+                  - ssm:AddTagsToResource
+                  - ssm:RemoveTagsFromResource
+                  - ssm:GetParameters
+    Metadata:
+      aws:cdk:path: Dev-BLEAEcsAppMonitoring/Custom::CrossRegionExportReaderCustomResourceProvider/Role
+  CustomCrossRegionExportReaderCustomResourceProviderHandler46647B68:
+    Type: AWS::Lambda::Function
+    Properties:
+      Code:
+        S3Bucket: cdk-hnb659fds-assets-818740031270-us-east-2
+        S3Key: 8acca95a9957d02a9f3ec124c9869c5d5b70a7fb3e332120850781ecc9363037.zip
+      Timeout: 900
+      MemorySize: 128
+      Handler: __entrypoint__.handler
+      Role:
+        Fn::GetAtt:
+          - CustomCrossRegionExportReaderCustomResourceProviderRole10531BBD
+          - Arn
+      Runtime: nodejs20.x
+    DependsOn:
+      - CustomCrossRegionExportReaderCustomResourceProviderRole10531BBD
+    Metadata:
+      aws:cdk:path: Dev-BLEAEcsAppMonitoring/Custom::CrossRegionExportReaderCustomResourceProvider/Handler
+      aws:asset:path: asset.8acca95a9957d02a9f3ec124c9869c5d5b70a7fb3e332120850781ecc9363037
+      aws:asset:property: Code
+Parameters:
+  BootstrapVersion:
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /cdk-bootstrap/hnb659fds/version
+    Description: Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]
+
