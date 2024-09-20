@@ -57,8 +57,8 @@ export const devPipelineParameter: PipelineParameter = {
     region: 'us-east-2',
   },
   envName: 'DevPipeline',
-  sourceRepository: 'aws-samples/baseline-environment-on-aws',
+  sourceRepository: 'cdk-pipeline-sample',
   sourceBranch: 'main',
   sourceConnectionArn:
-    'arn:aws:codestar-connections:us-west-2:222222222222:connection/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx',
+    'https://github.com/fxzoa/cdk-pipelin-sample.git',
 };

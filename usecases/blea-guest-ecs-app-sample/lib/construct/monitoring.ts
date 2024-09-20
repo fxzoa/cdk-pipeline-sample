@@ -34,7 +34,7 @@ export class Monitoring extends Construct {
         resources: [topic.topicArn],
       }),
     );
-
+/*
     // AWS Chatbot configuration for sending message
     const chatbotRole = new iam.Role(this, 'ChatbotRole', {
       assumedBy: new iam.ServicePrincipal('chatbot.amazonaws.com'),
@@ -52,5 +52,6 @@ export class Monitoring extends Construct {
       slackWorkspaceId: props.monitoringSlackWorkspaceId,
       snsTopicArns: [topic.topicArn],
     });
+*/
   }
 }
