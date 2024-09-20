@@ -33,14 +33,15 @@ export const devParameter: AppParameter = {
   env: {
     // account: '111111111111',
     // region: 'ap-northeast-1',
-    region: 'us-east-2',
+  //  region: 'us-east-1',  // 米国東部 (バージニア北部)
+    region: 'us-east-2',  // 米国東部 (オハイオ)
 
   },
   envName: 'dev',
   monitoringNotifyEmail: 'nan.bingjun@shinko-1930.co.jp',
-  monitoringSlackWorkspaceId: 'T0469K9DY21',
-  monitoringSlackChannelId: 'C06F120Q2F7',
-  vpcCidr: '10.100.0.0/16',
+  monitoringSlackWorkspaceId: 'TXXXXXXXX',
+  monitoringSlackChannelId: 'CXXXXXXXX',
+  vpcCidr: '10.0.0.0/16',
   dashboardName: 'BLEA-ECS-App-Sample',
 
   // -- Sample to use custom domain on CloudFront
@@ -57,8 +58,8 @@ export const devPipelineParameter: PipelineParameter = {
     region: 'us-east-2',
   },
   envName: 'DevPipeline',
-  sourceRepository: 'cdk-pipeline-sample',
+  sourceRepository: 'fxzoa/cdk-pipeline-sample',
   sourceBranch: 'main',
   sourceConnectionArn:
-    'https://github.com/fxzoa/cdk-pipelin-sample.git',
+    'arn:aws:codestar-connections:us-east-2:818740031270:connection/b51e4031-9512-4197-a73c-80cc67ee89a3',
 };
