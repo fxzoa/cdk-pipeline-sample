@@ -1,0 +1,2306 @@
+Description: BLEA Governance Base for standalone account (uksb-1tupboc58) (tag:blea-gov-base-standalone)
+Resources:
+  IamSysAdminPolicy03754AB3:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      Description: ""
+      Path: /
+      PolicyDocument:
+        Statement:
+          - NotAction: iam:*
+            Condition:
+              Bool:
+                aws:MultiFactorAuthPresent: "true"
+            Effect: Allow
+            Resource: "*"
+          - Action: aws-portal:*Billing
+            Effect: Deny
+            Resource: "*"
+          - Action:
+              - account:GetAccountInformation
+              - billing:GetBillingData
+              - billing:GetBillingDetails
+              - billing:GetBillingNotifications
+              - billing:GetBillingPreferences
+              - billing:GetContractInformation
+              - billing:GetCredits
+              - billing:GetIAMAccessPreference
+              - billing:GetSellerOfRecord
+              - billing:ListBillingViews
+              - billing:PutContractInformation
+              - billing:RedeemCredits
+              - billing:UpdateBillingPreferences
+              - ce:CreateAnomalyMonitor
+              - ce:CreateAnomalySubscription
+              - ce:CreateNotificationSubscription
+              - ce:CreateReport
+              - ce:DeleteAnomalyMonitor
+              - ce:DeleteAnomalySubscription
+              - ce:DeleteNotificationSubscription
+              - ce:DeleteReport
+              - ce:DescribeNotificationSubscription
+              - ce:DescribeReport
+              - ce:GetAnomalies
+              - ce:GetAnomalyMonitors
+              - ce:GetAnomalySubscriptions
+              - ce:GetCostAndUsage
+              - ce:GetCostAndUsageWithResources
+              - ce:GetCostCategories
+              - ce:GetCostForecast
+              - ce:GetDimensionValues
+              - ce:GetPreferences
+              - ce:GetReservationCoverage
+              - ce:GetReservationPurchaseRecommendation
+              - ce:GetReservationUtilization
+              - ce:GetRightsizingRecommendation
+              - ce:GetSavingsPlansCoverage
+              - ce:GetSavingsPlansPurchaseRecommendation
+              - ce:GetSavingsPlansUtilization
+              - ce:GetSavingsPlansUtilizationDetails
+              - ce:GetTags
+              - ce:GetUsageForecast
+              - ce:ListCostAllocationTags
+              - ce:ListSavingsPlansPurchaseRecommendationGeneration
+              - ce:ProvideAnomalyFeedback
+              - ce:StartSavingsPlansPurchaseRecommendationGeneration
+              - ce:UpdateAnomalyMonitor
+              - ce:UpdateAnomalySubscription
+              - ce:UpdateCostAllocationTagsStatus
+              - ce:UpdateNotificationSubscription
+              - ce:UpdatePreferences
+              - consolidatedbilling:GetAccountBillingRole
+              - consolidatedbilling:ListLinkedAccounts
+              - cur:GetClassicReport
+              - cur:GetClassicReportPreferences
+              - cur:PutClassicReportPreferences
+              - cur:ValidateReportDestination
+              - freetier:GetFreeTierAlertPreference
+              - freetier:GetFreeTierUsage
+              - freetier:PutFreeTierAlertPreference
+              - invoicing:GetInvoiceEmailDeliveryPreferences
+              - invoicing:GetInvoicePDF
+              - invoicing:ListInvoiceSummaries
+              - invoicing:PutInvoiceEmailDeliveryPreferences
+              - payments:CreatePaymentInstrument
+              - payments:DeletePaymentInstrument
+              - payments:GetPaymentInstrument
+              - payments:GetPaymentStatus
+              - payments:ListPaymentPreferences
+              - payments:MakePayment
+              - payments:UpdatePaymentPreferences
+              - tax:BatchPutTaxRegistration
+              - tax:DeleteTaxRegistration
+              - tax:GetTaxInheritance
+              - tax:GetTaxRegistrationDocument
+              - tax:ListTaxRegistrations
+              - tax:PutTaxInheritance
+            Effect: Deny
+            Resource: "*"
+          - Action:
+              - cloudtrail:DeleteTrail
+              - cloudtrail:StopLogging
+              - cloudtrail:UpdateTrail
+            Effect: Deny
+            Resource: "*"
+          - Action:
+              - kms:Create*
+              - kms:Revoke*
+              - kms:Enable*
+              - kms:Get*
+              - kms:Disable*
+              - kms:Delete*
+              - kms:Put*
+              - kms:Update*
+            Effect: Deny
+            Resource: "*"
+        Version: "2012-10-17"
+    Metadata:
+      aws:cdk:path: Dev-BLEAGovBaseStandalone/Iam/SysAdminPolicy/Resource
+  IamSysAdminRoleB0EE4AA6:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: ec2.amazonaws.com
+        Version: "2012-10-17"
+      ManagedPolicyArns:
+        - Ref: IamSysAdminPolicy03754AB3
+    Metadata:
+      aws:cdk:path: Dev-BLEAGovBaseStandalone/Iam/SysAdminRole/Resource
+  IamSysAdminGroup3543FAD1:
+    Type: AWS::IAM::Group
+    Properties:
+      ManagedPolicyArns:
+        - Ref: IamSysAdminPolicy03754AB3
+    Metadata:
+      aws:cdk:path: Dev-BLEAGovBaseStandalone/Iam/SysAdminGroup/Resource
+  IamIamAdminPolicy7A593281:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      Description: ""
+      Path: /
+      PolicyDocument:
+        Statement:
+          - Action: iam:*
+            Condition:
+              Bool:
+                aws:MultiFactorAuthPresent: "true"
+            Effect: Allow
+            Resource: "*"
+          - Action: aws-portal:*Billing
+            Effect: Deny
+            Resource: "*"
+          - Action:
+              - account:GetAccountInformation
+              - billing:GetBillingData
+              - billing:GetBillingDetails
+              - billing:GetBillingNotifications
+              - billing:GetBillingPreferences
+              - billing:GetContractInformation
+              - billing:GetCredits
+              - billing:GetIAMAccessPreference
+              - billing:GetSellerOfRecord
+              - billing:ListBillingViews
+              - billing:PutContractInformation
+              - billing:RedeemCredits
+              - billing:UpdateBillingPreferences
+              - ce:CreateAnomalyMonitor
+              - ce:CreateAnomalySubscription
+              - ce:CreateNotificationSubscription
+              - ce:CreateReport
+              - ce:DeleteAnomalyMonitor
+              - ce:DeleteAnomalySubscription
+              - ce:DeleteNotificationSubscription
+              - ce:DeleteReport
+              - ce:DescribeNotificationSubscription
+              - ce:DescribeReport
+              - ce:GetAnomalies
+              - ce:GetAnomalyMonitors
+              - ce:GetAnomalySubscriptions
+              - ce:GetCostAndUsage
+              - ce:GetCostAndUsageWithResources
+              - ce:GetCostCategories
+              - ce:GetCostForecast
+              - ce:GetDimensionValues
+              - ce:GetPreferences
+              - ce:GetReservationCoverage
+              - ce:GetReservationPurchaseRecommendation
+              - ce:GetReservationUtilization
+              - ce:GetRightsizingRecommendation
+              - ce:GetSavingsPlansCoverage
+              - ce:GetSavingsPlansPurchaseRecommendation
+              - ce:GetSavingsPlansUtilization
+              - ce:GetSavingsPlansUtilizationDetails
+              - ce:GetTags
+              - ce:GetUsageForecast
+              - ce:ListCostAllocationTags
+              - ce:ListSavingsPlansPurchaseRecommendationGeneration
+              - ce:ProvideAnomalyFeedback
+              - ce:StartSavingsPlansPurchaseRecommendationGeneration
+              - ce:UpdateAnomalyMonitor
+              - ce:UpdateAnomalySubscription
+              - ce:UpdateCostAllocationTagsStatus
+              - ce:UpdateNotificationSubscription
+              - ce:UpdatePreferences
+              - consolidatedbilling:GetAccountBillingRole
+              - consolidatedbilling:ListLinkedAccounts
+              - cur:GetClassicReport
+              - cur:GetClassicReportPreferences
+              - cur:PutClassicReportPreferences
+              - cur:ValidateReportDestination
+              - freetier:GetFreeTierAlertPreference
+              - freetier:GetFreeTierUsage
+              - freetier:PutFreeTierAlertPreference
+              - invoicing:GetInvoiceEmailDeliveryPreferences
+              - invoicing:GetInvoicePDF
+              - invoicing:ListInvoiceSummaries
+              - invoicing:PutInvoiceEmailDeliveryPreferences
+              - payments:CreatePaymentInstrument
+              - payments:DeletePaymentInstrument
+              - payments:GetPaymentInstrument
+              - payments:GetPaymentStatus
+              - payments:ListPaymentPreferences
+              - payments:MakePayment
+              - payments:UpdatePaymentPreferences
+              - tax:BatchPutTaxRegistration
+              - tax:DeleteTaxRegistration
+              - tax:GetTaxInheritance
+              - tax:GetTaxRegistrationDocument
+              - tax:ListTaxRegistrations
+              - tax:PutTaxInheritance
+            Effect: Deny
+            Resource: "*"
+        Version: "2012-10-17"
+    Metadata:
+      aws:cdk:path: Dev-BLEAGovBaseStandalone/Iam/IamAdminPolicy/Resource
+  IamIamAdminRole4B2B80CC:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: ec2.amazonaws.com
+        Version: "2012-10-17"
+      ManagedPolicyArns:
+        - Ref: IamIamAdminPolicy7A593281
+    Metadata:
+      aws:cdk:path: Dev-BLEAGovBaseStandalone/Iam/IamAdminRole/Resource
+  IamIamAdminGroup25000CB5:
+    Type: AWS::IAM::Group
+    Properties:
+      ManagedPolicyArns:
+        - Ref: IamIamAdminPolicy7A593281
+    Metadata:
+      aws:cdk:path: Dev-BLEAGovBaseStandalone/Iam/IamAdminGroup/Resource
+  IamInstanceOpsPolicy3A664659:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      Description: ""
+      Path: /
+      PolicyDocument:
+        Statement:
+          - Action: ec2:*
+            Effect: Allow
+            Resource: "*"
+          - Action: elasticloadbalancing:*
+            Effect: Allow
+            Resource: "*"
+          - Action: cloudwatch:*
+            Effect: Allow
+            Resource: "*"
+          - Action: autoscaling:*
+            Effect: Allow
+            Resource: "*"
+          - Action:
+              - ec2:CreateVpc*
+              - ec2:DeleteVpc*
+              - ec2:ModifyVpc*
+              - ec2:CreateSubnet*
+              - ec2:DeleteSubnet*
+              - ec2:ModifySubnet*
+              - ec2:Create*Route*
+              - ec2:DeleteRoute*
+              - ec2:AssociateRoute*
+              - ec2:ReplaceRoute*
+              - ec2:CreateVpn*
+              - ec2:DeleteVpn*
+              - ec2:AttachVpn*
+              - ec2:DetachVpn*
+              - ec2:CreateNetworkAcl*
+              - ec2:DeleteNetworkAcl*
+              - ec2:ReplaceNetworkAcl*
+              - ec2:*Gateway*
+              - ec2:*PeeringConnection*
+            Effect: Deny
+            Resource: "*"
+          - Action: aws-portal:*Billing
+            Effect: Deny
+            Resource: "*"
+          - Action:
+              - account:GetAccountInformation
+              - billing:GetBillingData
+              - billing:GetBillingDetails
+              - billing:GetBillingNotifications
+              - billing:GetBillingPreferences
+              - billing:GetContractInformation
+              - billing:GetCredits
+              - billing:GetIAMAccessPreference
+              - billing:GetSellerOfRecord
+              - billing:ListBillingViews
+              - billing:PutContractInformation
+              - billing:RedeemCredits
+              - billing:UpdateBillingPreferences
+              - ce:CreateAnomalyMonitor
+              - ce:CreateAnomalySubscription
+              - ce:CreateNotificationSubscription
+              - ce:CreateReport
+              - ce:DeleteAnomalyMonitor
+              - ce:DeleteAnomalySubscription
+              - ce:DeleteNotificationSubscription
+              - ce:DeleteReport
+              - ce:DescribeNotificationSubscription
+              - ce:DescribeReport
+              - ce:GetAnomalies
+              - ce:GetAnomalyMonitors
+              - ce:GetAnomalySubscriptions
+              - ce:GetCostAndUsage
+              - ce:GetCostAndUsageWithResources
+              - ce:GetCostCategories
+              - ce:GetCostForecast
+              - ce:GetDimensionValues
+              - ce:GetPreferences
+              - ce:GetReservationCoverage
+              - ce:GetReservationPurchaseRecommendation
+              - ce:GetReservationUtilization
+              - ce:GetRightsizingRecommendation
+              - ce:GetSavingsPlansCoverage
+              - ce:GetSavingsPlansPurchaseRecommendation
+              - ce:GetSavingsPlansUtilization
+              - ce:GetSavingsPlansUtilizationDetails
+              - ce:GetTags
+              - ce:GetUsageForecast
+              - ce:ListCostAllocationTags
+              - ce:ListSavingsPlansPurchaseRecommendationGeneration
+              - ce:ProvideAnomalyFeedback
+              - ce:StartSavingsPlansPurchaseRecommendationGeneration
+              - ce:UpdateAnomalyMonitor
+              - ce:UpdateAnomalySubscription
+              - ce:UpdateCostAllocationTagsStatus
+              - ce:UpdateNotificationSubscription
+              - ce:UpdatePreferences
+              - consolidatedbilling:GetAccountBillingRole
+              - consolidatedbilling:ListLinkedAccounts
+              - cur:GetClassicReport
+              - cur:GetClassicReportPreferences
+              - cur:PutClassicReportPreferences
+              - cur:ValidateReportDestination
+              - freetier:GetFreeTierAlertPreference
+              - freetier:GetFreeTierUsage
+              - freetier:PutFreeTierAlertPreference
+              - invoicing:GetInvoiceEmailDeliveryPreferences
+              - invoicing:GetInvoicePDF
+              - invoicing:ListInvoiceSummaries
+              - invoicing:PutInvoiceEmailDeliveryPreferences
+              - payments:CreatePaymentInstrument
+              - payments:DeletePaymentInstrument
+              - payments:GetPaymentInstrument
+              - payments:GetPaymentStatus
+              - payments:ListPaymentPreferences
+              - payments:MakePayment
+              - payments:UpdatePaymentPreferences
+              - tax:BatchPutTaxRegistration
+              - tax:DeleteTaxRegistration
+              - tax:GetTaxInheritance
+              - tax:GetTaxRegistrationDocument
+              - tax:ListTaxRegistrations
+              - tax:PutTaxInheritance
+            Effect: Deny
+            Resource: "*"
+          - Action:
+              - kms:Create*
+              - kms:Revoke*
+              - kms:Enable*
+              - kms:Get*
+              - kms:Disable*
+              - kms:Delete*
+              - kms:Put*
+              - kms:Update*
+            Effect: Deny
+            Resource: "*"
+        Version: "2012-10-17"
+    Metadata:
+      aws:cdk:path: Dev-BLEAGovBaseStandalone/Iam/InstanceOpsPolicy/Resource
+  IamInstanceOpsRole580371E4:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: ec2.amazonaws.com
+        Version: "2012-10-17"
+      ManagedPolicyArns:
+        - Ref: IamInstanceOpsPolicy3A664659
+    Metadata:
+      aws:cdk:path: Dev-BLEAGovBaseStandalone/Iam/InstanceOpsRole/Resource
+  IamInstanceOpsGroup05587F7C:
+    Type: AWS::IAM::Group
+    Properties:
+      ManagedPolicyArns:
+        - Ref: IamInstanceOpsPolicy3A664659
+    Metadata:
+      aws:cdk:path: Dev-BLEAGovBaseStandalone/Iam/InstanceOpsGroup/Resource
+  IamReadOnlyAdminPolicyB7107EA2:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      Description: ""
+      Path: /
+      PolicyDocument:
+        Statement:
+          - Action:
+              - appstream:Get*
+              - autoscaling:Describe*
+              - cloudformation:DescribeStacks
+              - cloudformation:DescribeStackEvents
+              - cloudformation:DescribeStackResource
+              - cloudformation:DescribeStackResources
+              - cloudformation:GetTemplate
+              - cloudformation:List*
+              - cloudfront:Get*
+              - cloudfront:List*
+              - cloudtrail:DescribeTrails
+              - cloudtrail:GetTrailStatus
+              - cloudwatch:Describe*
+              - cloudwatch:Get*
+              - cloudwatch:List*
+              - directconnect:Describe*
+              - dynamodb:GetItem
+              - dynamodb:BatchGetItem
+              - dynamodb:Query
+              - dynamodb:Scan
+              - dynamodb:DescribeTable
+              - dynamodb:ListTables
+              - ec2:Describe*
+              - elasticache:Describe*
+              - elasticbeanstalk:Check*
+              - elasticbeanstalk:Describe*
+              - elasticbeanstalk:List*
+              - elasticbeanstalk:RequestEnvironmentInfo
+              - elasticbeanstalk:RetrieveEnvironmentInfo
+              - elasticloadbalancing:Describe*
+              - elastictranscoder:Read*
+              - elastictranscoder:List*
+              - iam:List*
+              - iam:Get*
+              - kinesis:Describe*
+              - kinesis:Get*
+              - kinesis:List*
+              - opsworks:Describe*
+              - opsworks:Get*
+              - route53:Get*
+              - route53:List*
+              - redshift:Describe*
+              - redshift:ViewQueriesInConsole
+              - rds:Describe*
+              - rds:ListTagsForResource
+              - s3:Get*
+              - s3:List*
+              - sdb:GetAttributes
+              - sdb:List*
+              - sdb:Select*
+              - ses:Get*
+              - ses:List*
+              - sns:Get*
+              - sns:List*
+              - sqs:GetQueueAttributes
+              - sqs:ListQueues
+              - sqs:ReceiveMessage
+              - storagegateway:List*
+              - storagegateway:Describe*
+              - trustedadvisor:Describe*
+            Effect: Allow
+            Resource: "*"
+          - Action: aws-portal:*Billing
+            Effect: Deny
+            Resource: "*"
+          - Action:
+              - account:GetAccountInformation
+              - billing:GetBillingData
+              - billing:GetBillingDetails
+              - billing:GetBillingNotifications
+              - billing:GetBillingPreferences
+              - billing:GetContractInformation
+              - billing:GetCredits
+              - billing:GetIAMAccessPreference
+              - billing:GetSellerOfRecord
+              - billing:ListBillingViews
+              - billing:PutContractInformation
+              - billing:RedeemCredits
+              - billing:UpdateBillingPreferences
+              - ce:CreateAnomalyMonitor
+              - ce:CreateAnomalySubscription
+              - ce:CreateNotificationSubscription
+              - ce:CreateReport
+              - ce:DeleteAnomalyMonitor
+              - ce:DeleteAnomalySubscription
+              - ce:DeleteNotificationSubscription
+              - ce:DeleteReport
+              - ce:DescribeNotificationSubscription
+              - ce:DescribeReport
+              - ce:GetAnomalies
+              - ce:GetAnomalyMonitors
+              - ce:GetAnomalySubscriptions
+              - ce:GetCostAndUsage
+              - ce:GetCostAndUsageWithResources
+              - ce:GetCostCategories
+              - ce:GetCostForecast
+              - ce:GetDimensionValues
+              - ce:GetPreferences
+              - ce:GetReservationCoverage
+              - ce:GetReservationPurchaseRecommendation
+              - ce:GetReservationUtilization
+              - ce:GetRightsizingRecommendation
+              - ce:GetSavingsPlansCoverage
+              - ce:GetSavingsPlansPurchaseRecommendation
+              - ce:GetSavingsPlansUtilization
+              - ce:GetSavingsPlansUtilizationDetails
+              - ce:GetTags
+              - ce:GetUsageForecast
+              - ce:ListCostAllocationTags
+              - ce:ListSavingsPlansPurchaseRecommendationGeneration
+              - ce:ProvideAnomalyFeedback
+              - ce:StartSavingsPlansPurchaseRecommendationGeneration
+              - ce:UpdateAnomalyMonitor
+              - ce:UpdateAnomalySubscription
+              - ce:UpdateCostAllocationTagsStatus
+              - ce:UpdateNotificationSubscription
+              - ce:UpdatePreferences
+              - consolidatedbilling:GetAccountBillingRole
+              - consolidatedbilling:ListLinkedAccounts
+              - cur:GetClassicReport
+              - cur:GetClassicReportPreferences
+              - cur:PutClassicReportPreferences
+              - cur:ValidateReportDestination
+              - freetier:GetFreeTierAlertPreference
+              - freetier:GetFreeTierUsage
+              - freetier:PutFreeTierAlertPreference
+              - invoicing:GetInvoiceEmailDeliveryPreferences
+              - invoicing:GetInvoicePDF
+              - invoicing:ListInvoiceSummaries
+              - invoicing:PutInvoiceEmailDeliveryPreferences
+              - payments:CreatePaymentInstrument
+              - payments:DeletePaymentInstrument
+              - payments:GetPaymentInstrument
+              - payments:GetPaymentStatus
+              - payments:ListPaymentPreferences
+              - payments:MakePayment
+              - payments:UpdatePaymentPreferences
+              - tax:BatchPutTaxRegistration
+              - tax:DeleteTaxRegistration
+              - tax:GetTaxInheritance
+              - tax:GetTaxRegistrationDocument
+              - tax:ListTaxRegistrations
+              - tax:PutTaxInheritance
+            Effect: Deny
+            Resource: "*"
+        Version: "2012-10-17"
+    Metadata:
+      aws:cdk:path: Dev-BLEAGovBaseStandalone/Iam/ReadOnlyAdminPolicy/Resource
+  IamReadOnlyAdminRoleD519CCF3:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: ec2.amazonaws.com
+        Version: "2012-10-17"
+      ManagedPolicyArns:
+        - Ref: IamReadOnlyAdminPolicyB7107EA2
+    Metadata:
+      aws:cdk:path: Dev-BLEAGovBaseStandalone/Iam/ReadOnlyAdminRole/Resource
+  IamReadOnlyAdminGroupEA35CD95:
+    Type: AWS::IAM::Group
+    Properties:
+      ManagedPolicyArns:
+        - Ref: IamReadOnlyAdminPolicyB7107EA2
+    Metadata:
+      aws:cdk:path: Dev-BLEAGovBaseStandalone/Iam/ReadOnlyAdminGroup/Resource
+  LoggingCloudTrailAccessLogBucketA7B773C8:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+      LifecycleConfiguration:
+        Rules:
+          - ExpirationInDays: 2555
+            Status: Enabled
+            Transitions:
+              - StorageClass: GLACIER
+                TransitionInDays: 90
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      VersioningConfiguration:
+        Status: Enabled
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain
+    Metadata:
+      aws:cdk:path: Dev-BLEAGovBaseStandalone/Logging/CloudTrailAccessLogBucket/Resource
+  LoggingCloudTrailAccessLogBucketPolicyE58866E2:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket:
+        Ref: LoggingCloudTrailAccessLogBucketA7B773C8
+      PolicyDocument:
+        Statement:
+          - Action: s3:*
+            Condition:
+              Bool:
+                aws:SecureTransport: "false"
+            Effect: Deny
+            Principal:
+              AWS: "*"
+            Resource:
+              - Fn::GetAtt:
+                  - LoggingCloudTrailAccessLogBucketA7B773C8
+                  - Arn
+              - Fn::Join:
+                  - ""
+                  - - Fn::GetAtt:
+                        - LoggingCloudTrailAccessLogBucketA7B773C8
+                        - Arn
+                    - /*
+          - Action: s3:Delete*
+            Effect: Deny
+            Principal:
+              AWS: "*"
+            Resource:
+              Fn::Join:
+                - ""
+                - - Fn::GetAtt:
+                      - LoggingCloudTrailAccessLogBucketA7B773C8
+                      - Arn
+                  - /*
+            Sid: Restrict Delete* Actions
+          - Action: s3:PutObject
+            Condition:
+              ArnLike:
+                aws:SourceArn:
+                  Fn::GetAtt:
+                    - LoggingCloudTrailBucket7560781D
+                    - Arn
+              StringEquals:
+                aws:SourceAccount: "266735800535"
+            Effect: Allow
+            Principal:
+              Service: logging.s3.amazonaws.com
+            Resource:
+              Fn::Join:
+                - ""
+                - - Fn::GetAtt:
+                      - LoggingCloudTrailAccessLogBucketA7B773C8
+                      - Arn
+                  - /cloudtraillogs*
+        Version: "2012-10-17"
+    Metadata:
+      aws:cdk:path: Dev-BLEAGovBaseStandalone/Logging/CloudTrailAccessLogBucket/Policy/Resource
+  LoggingCloudTrailBucket7560781D:
+    Type: AWS::S3::Bucket
+    Properties:
+      AccessControl: Private
+      LoggingConfiguration:
+        DestinationBucketName:
+          Ref: LoggingCloudTrailAccessLogBucketA7B773C8
+        LogFilePrefix: cloudtraillogs
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      VersioningConfiguration:
+        Status: Enabled
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain
+    Metadata:
+      aws:cdk:path: Dev-BLEAGovBaseStandalone/Logging/CloudTrailBucket/Resource
+  LoggingCloudTrailBucketPolicy4004472F:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket:
+        Ref: LoggingCloudTrailBucket7560781D
+      PolicyDocument:
+        Statement:
+          - Action: s3:*
+            Condition:
+              Bool:
+                aws:SecureTransport: "false"
+            Effect: Deny
+            Principal:
+              AWS: "*"
+            Resource:
+              - Fn::GetAtt:
+                  - LoggingCloudTrailBucket7560781D
+                  - Arn
+              - Fn::Join:
+                  - ""
+                  - - Fn::GetAtt:
+                        - LoggingCloudTrailBucket7560781D
+                        - Arn
+                    - /*
+          - Action: s3:Delete*
+            Effect: Deny
+            Principal:
+              AWS: "*"
+            Resource:
+              Fn::Join:
+                - ""
+                - - Fn::GetAtt:
+                      - LoggingCloudTrailBucket7560781D
+                      - Arn
+                  - /*
+            Sid: Restrict Delete* Actions
+          - Action: s3:GetBucketAcl
+            Effect: Allow
+            Principal:
+              Service: cloudtrail.amazonaws.com
+            Resource:
+              Fn::GetAtt:
+                - LoggingCloudTrailBucket7560781D
+                - Arn
+          - Action: s3:PutObject
+            Condition:
+              StringEquals:
+                s3:x-amz-acl: bucket-owner-full-control
+            Effect: Allow
+            Principal:
+              Service: cloudtrail.amazonaws.com
+            Resource:
+              Fn::Join:
+                - ""
+                - - Fn::GetAtt:
+                      - LoggingCloudTrailBucket7560781D
+                      - Arn
+                  - /AWSLogs/266735800535/*
+        Version: "2012-10-17"
+    Metadata:
+      aws:cdk:path: Dev-BLEAGovBaseStandalone/Logging/CloudTrailBucket/Policy/Resource
+  LoggingCloudTrailKey43327553:
+    Type: AWS::KMS::Key
+    Properties:
+      Description: "BLEA Governance Base: CMK for CloudTrail"
+      EnableKeyRotation: true
+      KeyPolicy:
+        Statement:
+          - Action: kms:*
+            Effect: Allow
+            Principal:
+              AWS:
+                Fn::Join:
+                  - ""
+                  - - "arn:"
+                    - Ref: AWS::Partition
+                    - :iam::266735800535:root
+            Resource: "*"
+          - Action: kms:GenerateDataKey*
+            Condition:
+              StringLike:
+                kms:EncryptionContext:aws:cloudtrail:arn:
+                  - arn:aws:cloudtrail:*:266735800535:trail/*
+            Effect: Allow
+            Principal:
+              Service: cloudtrail.amazonaws.com
+            Resource: "*"
+          - Action: kms:DescribeKey
+            Effect: Allow
+            Principal:
+              Service: cloudtrail.amazonaws.com
+            Resource: "*"
+          - Action:
+              - kms:Decrypt
+              - kms:ReEncryptFrom
+            Condition:
+              StringEquals:
+                kms:CallerAccount: "266735800535"
+              StringLike:
+                kms:EncryptionContext:aws:cloudtrail:arn:
+                  - arn:aws:cloudtrail:*:266735800535:trail/*
+            Effect: Allow
+            Principal:
+              AWS: "*"
+            Resource: "*"
+          - Action:
+              - kms:Encrypt*
+              - kms:Decrypt*
+              - kms:ReEncrypt*
+              - kms:GenerateDataKey*
+              - kms:Describe*
+            Condition:
+              ArnEquals:
+                kms:EncryptionContext:aws:logs:arn: arn:aws:logs:ap-northeast-1:266735800535:log-group:*
+            Effect: Allow
+            Principal:
+              Service: logs.amazonaws.com
+            Resource: "*"
+        Version: "2012-10-17"
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain
+    Metadata:
+      aws:cdk:path: Dev-BLEAGovBaseStandalone/Logging/CloudTrailKey/Resource
+  LoggingCloudTrailKeyAlias65A5FEEA:
+    Type: AWS::KMS::Alias
+    Properties:
+      AliasName: alias/DevBLEAGovBaseStandaloneLoggingD3FABD05
+      TargetKeyId:
+        Fn::GetAtt:
+          - LoggingCloudTrailKey43327553
+          - Arn
+    Metadata:
+      aws:cdk:path: Dev-BLEAGovBaseStandalone/Logging/CloudTrailKey/Alias/Resource
+  LoggingCloudTrailLogGroupEFC12822:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      KmsKeyId:
+        Fn::GetAtt:
+          - LoggingCloudTrailKey43327553
+          - Arn
+      RetentionInDays: 90
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain
+    Metadata:
+      aws:cdk:path: Dev-BLEAGovBaseStandalone/Logging/CloudTrailLogGroup/Resource
+  LoggingCloudTrailLogsRoleE1DD6030:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: cloudtrail.amazonaws.com
+        Version: "2012-10-17"
+    Metadata:
+      aws:cdk:path: Dev-BLEAGovBaseStandalone/Logging/CloudTrail/LogsRole/Resource
+  LoggingCloudTrailLogsRoleDefaultPolicy7A5B650C:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Action:
+              - logs:PutLogEvents
+              - logs:CreateLogStream
+            Effect: Allow
+            Resource:
+              Fn::GetAtt:
+                - LoggingCloudTrailLogGroupEFC12822
+                - Arn
+        Version: "2012-10-17"
+      PolicyName: LoggingCloudTrailLogsRoleDefaultPolicy7A5B650C
+      Roles:
+        - Ref: LoggingCloudTrailLogsRoleE1DD6030
+    Metadata:
+      aws:cdk:path: Dev-BLEAGovBaseStandalone/Logging/CloudTrail/LogsRole/DefaultPolicy/Resource
+  LoggingCloudTrail44E92DB9:
+    Type: AWS::CloudTrail::Trail
+    Properties:
+      CloudWatchLogsLogGroupArn:
+        Fn::GetAtt:
+          - LoggingCloudTrailLogGroupEFC12822
+          - Arn
+      CloudWatchLogsRoleArn:
+        Fn::GetAtt:
+          - LoggingCloudTrailLogsRoleE1DD6030
+          - Arn
+      EnableLogFileValidation: true
+      EventSelectors: []
+      IncludeGlobalServiceEvents: true
+      IsLogging: true
+      IsMultiRegionTrail: true
+      KMSKeyId:
+        Fn::GetAtt:
+          - LoggingCloudTrailKey43327553
+          - Arn
+      S3BucketName:
+        Ref: LoggingCloudTrailBucket7560781D
+    DependsOn:
+      - LoggingCloudTrailLogsRoleDefaultPolicy7A5B650C
+      - LoggingCloudTrailLogsRoleE1DD6030
+      - LoggingCloudTrailBucketPolicy4004472F
+    Metadata:
+      aws:cdk:path: Dev-BLEAGovBaseStandalone/Logging/CloudTrail/Resource
+  LoggingConfigRole0E4FDF1F:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: config.amazonaws.com
+        Version: "2012-10-17"
+      ManagedPolicyArns:
+        - Fn::Join:
+            - ""
+            - - "arn:"
+              - Ref: AWS::Partition
+              - :iam::aws:policy/service-role/AWS_ConfigRole
+    Metadata:
+      aws:cdk:path: Dev-BLEAGovBaseStandalone/Logging/ConfigRole/Resource
+  LoggingConfigRecorderFC55B19F:
+    Type: AWS::Config::ConfigurationRecorder
+    Properties:
+      RecordingGroup:
+        AllSupported: true
+        IncludeGlobalResourceTypes: true
+      RoleARN:
+        Fn::GetAtt:
+          - LoggingConfigRole0E4FDF1F
+          - Arn
+    Metadata:
+      aws:cdk:path: Dev-BLEAGovBaseStandalone/Logging/ConfigRecorder
+  LoggingConfigBucket139B5174:
+    Type: AWS::S3::Bucket
+    Properties:
+      AccessControl: Private
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      VersioningConfiguration:
+        Status: Enabled
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain
+    Metadata:
+      aws:cdk:path: Dev-BLEAGovBaseStandalone/Logging/ConfigBucket/Resource
+  LoggingConfigBucketPolicy66A7F5E7:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket:
+        Ref: LoggingConfigBucket139B5174
+      PolicyDocument:
+        Statement:
+          - Action: s3:*
+            Condition:
+              Bool:
+                aws:SecureTransport: "false"
+            Effect: Deny
+            Principal:
+              AWS: "*"
+            Resource:
+              - Fn::GetAtt:
+                  - LoggingConfigBucket139B5174
+                  - Arn
+              - Fn::Join:
+                  - ""
+                  - - Fn::GetAtt:
+                        - LoggingConfigBucket139B5174
+                        - Arn
+                    - /*
+          - Action: s3:GetBucketAcl
+            Effect: Allow
+            Principal:
+              AWS:
+                Fn::GetAtt:
+                  - LoggingConfigRole0E4FDF1F
+                  - Arn
+            Resource:
+              Fn::GetAtt:
+                - LoggingConfigBucket139B5174
+                - Arn
+          - Action: s3:PutObject
+            Condition:
+              StringEquals:
+                s3:x-amz-acl: bucket-owner-full-control
+            Effect: Allow
+            Principal:
+              AWS:
+                Fn::GetAtt:
+                  - LoggingConfigRole0E4FDF1F
+                  - Arn
+            Resource:
+              Fn::Join:
+                - ""
+                - - Fn::GetAtt:
+                      - LoggingConfigBucket139B5174
+                      - Arn
+                  - /AWSLogs/266735800535/Config/*
+        Version: "2012-10-17"
+    Metadata:
+      aws:cdk:path: Dev-BLEAGovBaseStandalone/Logging/ConfigBucket/Policy/Resource
+  LoggingConfigDeliveryChannel44B4762B:
+    Type: AWS::Config::DeliveryChannel
+    Properties:
+      S3BucketName:
+        Ref: LoggingConfigBucket139B5174
+    Metadata:
+      aws:cdk:path: Dev-BLEAGovBaseStandalone/Logging/ConfigDeliveryChannel
+  DetectionGuardDutyDetector43B5BAA7:
+    Type: AWS::GuardDuty::Detector
+    Properties:
+      Enable: true
+    DependsOn:
+      - LoggingCloudTrailLogsRoleDefaultPolicy7A5B650C
+      - LoggingCloudTrailLogsRoleE1DD6030
+      - LoggingCloudTrail44E92DB9
+      - LoggingCloudTrailAccessLogBucketPolicyE58866E2
+      - LoggingCloudTrailAccessLogBucketA7B773C8
+      - LoggingCloudTrailBucketPolicy4004472F
+      - LoggingCloudTrailBucket7560781D
+      - LoggingCloudTrailKeyAlias65A5FEEA
+      - LoggingCloudTrailKey43327553
+      - LoggingCloudTrailLogGroupEFC12822
+      - LoggingConfigBucketPolicy66A7F5E7
+      - LoggingConfigBucket139B5174
+      - LoggingConfigDeliveryChannel44B4762B
+      - LoggingConfigRecorderFC55B19F
+      - LoggingConfigRole0E4FDF1F
+    Metadata:
+      aws:cdk:path: Dev-BLEAGovBaseStandalone/Detection/GuardDutyDetector
+  DetectionSecurityHubRoleDBC68A4D:
+    Type: AWS::IAM::ServiceLinkedRole
+    Properties:
+      AWSServiceName: securityhub.amazonaws.com
+    DependsOn:
+      - LoggingCloudTrailLogsRoleDefaultPolicy7A5B650C
+      - LoggingCloudTrailLogsRoleE1DD6030
+      - LoggingCloudTrail44E92DB9
+      - LoggingCloudTrailAccessLogBucketPolicyE58866E2
+      - LoggingCloudTrailAccessLogBucketA7B773C8
+      - LoggingCloudTrailBucketPolicy4004472F
+      - LoggingCloudTrailBucket7560781D
+      - LoggingCloudTrailKeyAlias65A5FEEA
+      - LoggingCloudTrailKey43327553
+      - LoggingCloudTrailLogGroupEFC12822
+      - LoggingConfigBucketPolicy66A7F5E7
+      - LoggingConfigBucket139B5174
+      - LoggingConfigDeliveryChannel44B4762B
+      - LoggingConfigRecorderFC55B19F
+      - LoggingConfigRole0E4FDF1F
+    Metadata:
+      aws:cdk:path: Dev-BLEAGovBaseStandalone/Detection/SecurityHubRole
+  DetectionSecurityHub0FF05D88:
+    Type: AWS::SecurityHub::Hub
+    DependsOn:
+      - LoggingCloudTrailLogsRoleDefaultPolicy7A5B650C
+      - LoggingCloudTrailLogsRoleE1DD6030
+      - LoggingCloudTrail44E92DB9
+      - LoggingCloudTrailAccessLogBucketPolicyE58866E2
+      - LoggingCloudTrailAccessLogBucketA7B773C8
+      - LoggingCloudTrailBucketPolicy4004472F
+      - LoggingCloudTrailBucket7560781D
+      - LoggingCloudTrailKeyAlias65A5FEEA
+      - LoggingCloudTrailKey43327553
+      - LoggingCloudTrailLogGroupEFC12822
+      - LoggingConfigBucketPolicy66A7F5E7
+      - LoggingConfigBucket139B5174
+      - LoggingConfigDeliveryChannel44B4762B
+      - LoggingConfigRecorderFC55B19F
+      - LoggingConfigRole0E4FDF1F
+    Metadata:
+      aws:cdk:path: Dev-BLEAGovBaseStandalone/Detection/SecurityHub
+  CheckForEbsOptimizedInstance:
+    Type: AWS::Config::ConfigRule
+    Properties:
+      ConfigRuleName: CheckForEbsOptimizedInstance
+      Description: Disallow launch of EC2 instance types that are not EBS-optimized - Checks whether EBS optimization is enabled for your EC2 instances that can be EBS-optimized
+      Scope:
+        ComplianceResourceTypes:
+          - AWS::EC2::Instance
+      Source:
+        Owner: AWS
+        SourceIdentifier: EBS_OPTIMIZED_INSTANCE
+    DependsOn:
+      - LoggingCloudTrailLogsRoleDefaultPolicy7A5B650C
+      - LoggingCloudTrailLogsRoleE1DD6030
+      - LoggingCloudTrail44E92DB9
+      - LoggingCloudTrailAccessLogBucketPolicyE58866E2
+      - LoggingCloudTrailAccessLogBucketA7B773C8
+      - LoggingCloudTrailBucketPolicy4004472F
+      - LoggingCloudTrailBucket7560781D
+      - LoggingCloudTrailKeyAlias65A5FEEA
+      - LoggingCloudTrailKey43327553
+      - LoggingCloudTrailLogGroupEFC12822
+      - LoggingConfigBucketPolicy66A7F5E7
+      - LoggingConfigBucket139B5174
+      - LoggingConfigDeliveryChannel44B4762B
+      - LoggingConfigRecorderFC55B19F
+      - LoggingConfigRole0E4FDF1F
+  CheckForEc2VolumesInUse:
+    Type: AWS::Config::ConfigRule
+    Properties:
+      ConfigRuleName: CheckForEc2VolumesInUs
+      Description: Disallow EBS volumes that are unattached to an EC2 instance - Checks whether EBS volumes are attached to EC2 instances
+      InputParameters:
+        deleteOnTermination: true
+      Scope:
+        ComplianceResourceTypes:
+          - AWS::EC2::Volume
+      Source:
+        Owner: AWS
+        SourceIdentifier: EC2_VOLUME_INUSE_CHECK
+    DependsOn:
+      - LoggingCloudTrailLogsRoleDefaultPolicy7A5B650C
+      - LoggingCloudTrailLogsRoleE1DD6030
+      - LoggingCloudTrail44E92DB9
+      - LoggingCloudTrailAccessLogBucketPolicyE58866E2
+      - LoggingCloudTrailAccessLogBucketA7B773C8
+      - LoggingCloudTrailBucketPolicy4004472F
+      - LoggingCloudTrailBucket7560781D
+      - LoggingCloudTrailKeyAlias65A5FEEA
+      - LoggingCloudTrailKey43327553
+      - LoggingCloudTrailLogGroupEFC12822
+      - LoggingConfigBucketPolicy66A7F5E7
+      - LoggingConfigBucket139B5174
+      - LoggingConfigDeliveryChannel44B4762B
+      - LoggingConfigRecorderFC55B19F
+      - LoggingConfigRole0E4FDF1F
+  CheckForEncryptedVolumes:
+    Type: AWS::Config::ConfigRule
+    Properties:
+      ConfigRuleName: CheckForEncryptedVolumes
+      Description: Enable encryption for EBS volumes attached to EC2 instances - Checks whether EBS volumes that are in an attached state are encrypted.
+      Scope:
+        ComplianceResourceTypes:
+          - AWS::EC2::Volume
+      Source:
+        Owner: AWS
+        SourceIdentifier: ENCRYPTED_VOLUMES
+    DependsOn:
+      - LoggingCloudTrailLogsRoleDefaultPolicy7A5B650C
+      - LoggingCloudTrailLogsRoleE1DD6030
+      - LoggingCloudTrail44E92DB9
+      - LoggingCloudTrailAccessLogBucketPolicyE58866E2
+      - LoggingCloudTrailAccessLogBucketA7B773C8
+      - LoggingCloudTrailBucketPolicy4004472F
+      - LoggingCloudTrailBucket7560781D
+      - LoggingCloudTrailKeyAlias65A5FEEA
+      - LoggingCloudTrailKey43327553
+      - LoggingCloudTrailLogGroupEFC12822
+      - LoggingConfigBucketPolicy66A7F5E7
+      - LoggingConfigBucket139B5174
+      - LoggingConfigDeliveryChannel44B4762B
+      - LoggingConfigRecorderFC55B19F
+      - LoggingConfigRole0E4FDF1F
+  CheckForIAMUserMFA:
+    Type: AWS::Config::ConfigRule
+    Properties:
+      ConfigRuleName: CheckForIAMUserMFA
+      Description: Disallow access to IAM users without MFA - Checks whether the AWS Identity and Access Management users have multi-factor authentication (MFA) enabled. The rule is COMPLIANT if MFA is enabled.
+      MaximumExecutionFrequency: One_Hour
+      Source:
+        Owner: AWS
+        SourceIdentifier: IAM_USER_MFA_ENABLED
+    DependsOn:
+      - LoggingCloudTrailLogsRoleDefaultPolicy7A5B650C
+      - LoggingCloudTrailLogsRoleE1DD6030
+      - LoggingCloudTrail44E92DB9
+      - LoggingCloudTrailAccessLogBucketPolicyE58866E2
+      - LoggingCloudTrailAccessLogBucketA7B773C8
+      - LoggingCloudTrailBucketPolicy4004472F
+      - LoggingCloudTrailBucket7560781D
+      - LoggingCloudTrailKeyAlias65A5FEEA
+      - LoggingCloudTrailKey43327553
+      - LoggingCloudTrailLogGroupEFC12822
+      - LoggingConfigBucketPolicy66A7F5E7
+      - LoggingConfigBucket139B5174
+      - LoggingConfigDeliveryChannel44B4762B
+      - LoggingConfigRecorderFC55B19F
+      - LoggingConfigRole0E4FDF1F
+  CheckForIAMUserConsoleMFA:
+    Type: AWS::Config::ConfigRule
+    Properties:
+      ConfigRuleName: CheckForIAMUserConsoleMFA
+      Description: Disallow console access to IAM users without MFA - Checks whether AWS Multi-Factor Authentication (MFA) is enabled for all AWS Identity and Access Management (IAM) users that use a console password. The rule is COMPLIANT if MFA is enabled.
+      MaximumExecutionFrequency: One_Hour
+      Source:
+        Owner: AWS
+        SourceIdentifier: MFA_ENABLED_FOR_IAM_CONSOLE_ACCESS
+    DependsOn:
+      - LoggingCloudTrailLogsRoleDefaultPolicy7A5B650C
+      - LoggingCloudTrailLogsRoleE1DD6030
+      - LoggingCloudTrail44E92DB9
+      - LoggingCloudTrailAccessLogBucketPolicyE58866E2
+      - LoggingCloudTrailAccessLogBucketA7B773C8
+      - LoggingCloudTrailBucketPolicy4004472F
+      - LoggingCloudTrailBucket7560781D
+      - LoggingCloudTrailKeyAlias65A5FEEA
+      - LoggingCloudTrailKey43327553
+      - LoggingCloudTrailLogGroupEFC12822
+      - LoggingConfigBucketPolicy66A7F5E7
+      - LoggingConfigBucket139B5174
+      - LoggingConfigDeliveryChannel44B4762B
+      - LoggingConfigRecorderFC55B19F
+      - LoggingConfigRole0E4FDF1F
+  CheckForRdsPublicAccess:
+    Type: AWS::Config::ConfigRule
+    Properties:
+      ConfigRuleName: CheckForRdsPublicAccess
+      Description: Disallow public access to RDS database instances - Checks whether the Amazon Relational Database Service (RDS) instances are not publicly accessible. The rule is non-compliant if the publiclyAccessible field is true in the instance configuration item.
+      Scope:
+        ComplianceResourceTypes:
+          - AWS::RDS::DBInstance
+      Source:
+        Owner: AWS
+        SourceIdentifier: RDS_INSTANCE_PUBLIC_ACCESS_CHECK
+    DependsOn:
+      - LoggingCloudTrailLogsRoleDefaultPolicy7A5B650C
+      - LoggingCloudTrailLogsRoleE1DD6030
+      - LoggingCloudTrail44E92DB9
+      - LoggingCloudTrailAccessLogBucketPolicyE58866E2
+      - LoggingCloudTrailAccessLogBucketA7B773C8
+      - LoggingCloudTrailBucketPolicy4004472F
+      - LoggingCloudTrailBucket7560781D
+      - LoggingCloudTrailKeyAlias65A5FEEA
+      - LoggingCloudTrailKey43327553
+      - LoggingCloudTrailLogGroupEFC12822
+      - LoggingConfigBucketPolicy66A7F5E7
+      - LoggingConfigBucket139B5174
+      - LoggingConfigDeliveryChannel44B4762B
+      - LoggingConfigRecorderFC55B19F
+      - LoggingConfigRole0E4FDF1F
+  CheckForPublicRdsSnapshots:
+    Type: AWS::Config::ConfigRule
+    Properties:
+      ConfigRuleName: CheckForPublicRdsSnapshots
+      Description: Disallow public access to RDS database snapshots - Checks if Amazon Relational Database Service (Amazon RDS) snapshots are public. The rule is non-compliant if any existing and new Amazon RDS snapshots are public.
+      Scope:
+        ComplianceResourceTypes:
+          - AWS::RDS::DBSnapshot
+      Source:
+        Owner: AWS
+        SourceIdentifier: RDS_SNAPSHOTS_PUBLIC_PROHIBITED
+    DependsOn:
+      - LoggingCloudTrailLogsRoleDefaultPolicy7A5B650C
+      - LoggingCloudTrailLogsRoleE1DD6030
+      - LoggingCloudTrail44E92DB9
+      - LoggingCloudTrailAccessLogBucketPolicyE58866E2
+      - LoggingCloudTrailAccessLogBucketA7B773C8
+      - LoggingCloudTrailBucketPolicy4004472F
+      - LoggingCloudTrailBucket7560781D
+      - LoggingCloudTrailKeyAlias65A5FEEA
+      - LoggingCloudTrailKey43327553
+      - LoggingCloudTrailLogGroupEFC12822
+      - LoggingConfigBucketPolicy66A7F5E7
+      - LoggingConfigBucket139B5174
+      - LoggingConfigDeliveryChannel44B4762B
+      - LoggingConfigRecorderFC55B19F
+      - LoggingConfigRole0E4FDF1F
+  CheckForRdsStorageEncryption:
+    Type: AWS::Config::ConfigRule
+    Properties:
+      ConfigRuleName: CheckForRdsStorageEncryption
+      Description: Disallow RDS database instances that are not storage encrypted - Checks whether storage encryption is enabled for your RDS DB instances.
+      Scope:
+        ComplianceResourceTypes:
+          - AWS::RDS::DBInstance
+      Source:
+        Owner: AWS
+        SourceIdentifier: RDS_STORAGE_ENCRYPTED
+    DependsOn:
+      - LoggingCloudTrailLogsRoleDefaultPolicy7A5B650C
+      - LoggingCloudTrailLogsRoleE1DD6030
+      - LoggingCloudTrail44E92DB9
+      - LoggingCloudTrailAccessLogBucketPolicyE58866E2
+      - LoggingCloudTrailAccessLogBucketA7B773C8
+      - LoggingCloudTrailBucketPolicy4004472F
+      - LoggingCloudTrailBucket7560781D
+      - LoggingCloudTrailKeyAlias65A5FEEA
+      - LoggingCloudTrailKey43327553
+      - LoggingCloudTrailLogGroupEFC12822
+      - LoggingConfigBucketPolicy66A7F5E7
+      - LoggingConfigBucket139B5174
+      - LoggingConfigDeliveryChannel44B4762B
+      - LoggingConfigRecorderFC55B19F
+      - LoggingConfigRole0E4FDF1F
+  CheckForRestrictedCommonPortsPolicy:
+    Type: AWS::Config::ConfigRule
+    Properties:
+      ConfigRuleName: CheckForRestrictedCommonPortsPolicy
+      Description: Disallow internet connection through RDP - Checks whether security groups that are in use disallow unrestricted incoming TCP traffic to the specified ports.
+      InputParameters:
+        blockedPort1: 20
+        blockedPort2: 21
+        blockedPort3: 3389
+        blockedPort4: 3306
+        blockedPort5: 4333
+      Scope:
+        ComplianceResourceTypes:
+          - AWS::EC2::SecurityGroup
+      Source:
+        Owner: AWS
+        SourceIdentifier: RESTRICTED_INCOMING_TRAFFIC
+    DependsOn:
+      - LoggingCloudTrailLogsRoleDefaultPolicy7A5B650C
+      - LoggingCloudTrailLogsRoleE1DD6030
+      - LoggingCloudTrail44E92DB9
+      - LoggingCloudTrailAccessLogBucketPolicyE58866E2
+      - LoggingCloudTrailAccessLogBucketA7B773C8
+      - LoggingCloudTrailBucketPolicy4004472F
+      - LoggingCloudTrailBucket7560781D
+      - LoggingCloudTrailKeyAlias65A5FEEA
+      - LoggingCloudTrailKey43327553
+      - LoggingCloudTrailLogGroupEFC12822
+      - LoggingConfigBucketPolicy66A7F5E7
+      - LoggingConfigBucket139B5174
+      - LoggingConfigDeliveryChannel44B4762B
+      - LoggingConfigRecorderFC55B19F
+      - LoggingConfigRole0E4FDF1F
+  CheckForRestrictedSshPolicy:
+    Type: AWS::Config::ConfigRule
+    Properties:
+      ConfigRuleName: CheckForRestrictedSshPolicy
+      Description: Disallow internet connection through SSH - Checks whether security groups that are in use disallow unrestricted incoming SSH traffic.
+      Scope:
+        ComplianceResourceTypes:
+          - AWS::EC2::SecurityGroup
+      Source:
+        Owner: AWS
+        SourceIdentifier: INCOMING_SSH_DISABLED
+    DependsOn:
+      - LoggingCloudTrailLogsRoleDefaultPolicy7A5B650C
+      - LoggingCloudTrailLogsRoleE1DD6030
+      - LoggingCloudTrail44E92DB9
+      - LoggingCloudTrailAccessLogBucketPolicyE58866E2
+      - LoggingCloudTrailAccessLogBucketA7B773C8
+      - LoggingCloudTrailBucketPolicy4004472F
+      - LoggingCloudTrailBucket7560781D
+      - LoggingCloudTrailKeyAlias65A5FEEA
+      - LoggingCloudTrailKey43327553
+      - LoggingCloudTrailLogGroupEFC12822
+      - LoggingConfigBucketPolicy66A7F5E7
+      - LoggingConfigBucket139B5174
+      - LoggingConfigDeliveryChannel44B4762B
+      - LoggingConfigRecorderFC55B19F
+      - LoggingConfigRole0E4FDF1F
+  CheckForRootMfa:
+    Type: AWS::Config::ConfigRule
+    Properties:
+      ConfigRuleName: CheckForRootMfa
+      Description: Enable MFA for the root user - Checks whether the root user of your AWS account requires multi-factor authentication for console sign-in.
+      MaximumExecutionFrequency: One_Hour
+      Source:
+        Owner: AWS
+        SourceIdentifier: ROOT_ACCOUNT_MFA_ENABLED
+    DependsOn:
+      - LoggingCloudTrailLogsRoleDefaultPolicy7A5B650C
+      - LoggingCloudTrailLogsRoleE1DD6030
+      - LoggingCloudTrail44E92DB9
+      - LoggingCloudTrailAccessLogBucketPolicyE58866E2
+      - LoggingCloudTrailAccessLogBucketA7B773C8
+      - LoggingCloudTrailBucketPolicy4004472F
+      - LoggingCloudTrailBucket7560781D
+      - LoggingCloudTrailKeyAlias65A5FEEA
+      - LoggingCloudTrailKey43327553
+      - LoggingCloudTrailLogGroupEFC12822
+      - LoggingConfigBucketPolicy66A7F5E7
+      - LoggingConfigBucket139B5174
+      - LoggingConfigDeliveryChannel44B4762B
+      - LoggingConfigRecorderFC55B19F
+      - LoggingConfigRole0E4FDF1F
+  CheckForS3PublicRead:
+    Type: AWS::Config::ConfigRule
+    Properties:
+      ConfigRuleName: CheckForS3PublicRead
+      Description: Disallow public read access to S3 buckets - Checks that your S3 buckets do not allow public read access. If an S3 bucket policy or bucket ACL allows public read access, the bucket is noncompliant.
+      Scope:
+        ComplianceResourceTypes:
+          - AWS::S3::Bucket
+      Source:
+        Owner: AWS
+        SourceIdentifier: S3_BUCKET_PUBLIC_READ_PROHIBITED
+    DependsOn:
+      - LoggingCloudTrailLogsRoleDefaultPolicy7A5B650C
+      - LoggingCloudTrailLogsRoleE1DD6030
+      - LoggingCloudTrail44E92DB9
+      - LoggingCloudTrailAccessLogBucketPolicyE58866E2
+      - LoggingCloudTrailAccessLogBucketA7B773C8
+      - LoggingCloudTrailBucketPolicy4004472F
+      - LoggingCloudTrailBucket7560781D
+      - LoggingCloudTrailKeyAlias65A5FEEA
+      - LoggingCloudTrailKey43327553
+      - LoggingCloudTrailLogGroupEFC12822
+      - LoggingConfigBucketPolicy66A7F5E7
+      - LoggingConfigBucket139B5174
+      - LoggingConfigDeliveryChannel44B4762B
+      - LoggingConfigRecorderFC55B19F
+      - LoggingConfigRole0E4FDF1F
+  CheckForS3PublicWrite:
+    Type: AWS::Config::ConfigRule
+    Properties:
+      ConfigRuleName: CheckForS3PublicWrite
+      Description: Disallow public write access to S3 buckets - Checks that your S3 buckets do not allow public write access. If an S3 bucket policy or bucket ACL allows public write access, the bucket is noncompliant.
+      Scope:
+        ComplianceResourceTypes:
+          - AWS::S3::Bucket
+      Source:
+        Owner: AWS
+        SourceIdentifier: S3_BUCKET_PUBLIC_WRITE_PROHIBITED
+    DependsOn:
+      - LoggingCloudTrailLogsRoleDefaultPolicy7A5B650C
+      - LoggingCloudTrailLogsRoleE1DD6030
+      - LoggingCloudTrail44E92DB9
+      - LoggingCloudTrailAccessLogBucketPolicyE58866E2
+      - LoggingCloudTrailAccessLogBucketA7B773C8
+      - LoggingCloudTrailBucketPolicy4004472F
+      - LoggingCloudTrailBucket7560781D
+      - LoggingCloudTrailKeyAlias65A5FEEA
+      - LoggingCloudTrailKey43327553
+      - LoggingCloudTrailLogGroupEFC12822
+      - LoggingConfigBucketPolicy66A7F5E7
+      - LoggingConfigBucket139B5174
+      - LoggingConfigDeliveryChannel44B4762B
+      - LoggingConfigRecorderFC55B19F
+      - LoggingConfigRole0E4FDF1F
+  CheckForS3VersioningEnabled:
+    Type: AWS::Config::ConfigRule
+    Properties:
+      ConfigRuleName: CheckForS3VersioningEnabled
+      Description: Disallow S3 buckets that are not versioning enabled - Checks whether versioning is enabled for your S3 buckets.
+      Scope:
+        ComplianceResourceTypes:
+          - AWS::S3::Bucket
+      Source:
+        Owner: AWS
+        SourceIdentifier: S3_BUCKET_VERSIONING_ENABLED
+    DependsOn:
+      - LoggingCloudTrailLogsRoleDefaultPolicy7A5B650C
+      - LoggingCloudTrailLogsRoleE1DD6030
+      - LoggingCloudTrail44E92DB9
+      - LoggingCloudTrailAccessLogBucketPolicyE58866E2
+      - LoggingCloudTrailAccessLogBucketA7B773C8
+      - LoggingCloudTrailBucketPolicy4004472F
+      - LoggingCloudTrailBucket7560781D
+      - LoggingCloudTrailKeyAlias65A5FEEA
+      - LoggingCloudTrailKey43327553
+      - LoggingCloudTrailLogGroupEFC12822
+      - LoggingConfigBucketPolicy66A7F5E7
+      - LoggingConfigBucket139B5174
+      - LoggingConfigDeliveryChannel44B4762B
+      - LoggingConfigRecorderFC55B19F
+      - LoggingConfigRole0E4FDF1F
+  DetectionDefaultSgClosedRuleFED7310D:
+    Type: AWS::Config::ConfigRule
+    Properties:
+      ConfigRuleName: bb-default-security-group-closed
+      Description: Checks that the default security group of any Amazon Virtual Private Cloud (VPC) does not allow inbound or outbound traffic. The rule is non-compliant if the default security group has one or more inbound or outbound traffic.
+      Scope:
+        ComplianceResourceTypes:
+          - AWS::EC2::SecurityGroup
+      Source:
+        Owner: AWS
+        SourceIdentifier: VPC_DEFAULT_SECURITY_GROUP_CLOSED
+    DependsOn:
+      - LoggingCloudTrailLogsRoleDefaultPolicy7A5B650C
+      - LoggingCloudTrailLogsRoleE1DD6030
+      - LoggingCloudTrail44E92DB9
+      - LoggingCloudTrailAccessLogBucketPolicyE58866E2
+      - LoggingCloudTrailAccessLogBucketA7B773C8
+      - LoggingCloudTrailBucketPolicy4004472F
+      - LoggingCloudTrailBucket7560781D
+      - LoggingCloudTrailKeyAlias65A5FEEA
+      - LoggingCloudTrailKey43327553
+      - LoggingCloudTrailLogGroupEFC12822
+      - LoggingConfigBucketPolicy66A7F5E7
+      - LoggingConfigBucket139B5174
+      - LoggingConfigDeliveryChannel44B4762B
+      - LoggingConfigRecorderFC55B19F
+      - LoggingConfigRole0E4FDF1F
+    Metadata:
+      aws:cdk:path: Dev-BLEAGovBaseStandalone/Detection/DefaultSgClosedRule/Resource
+  DetectionDefaultSgRemediationRoleAEF5626C:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: ssm.amazonaws.com
+        Version: "2012-10-17"
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AmazonSSMAutomationRole
+      Path: /
+    DependsOn:
+      - LoggingCloudTrailLogsRoleDefaultPolicy7A5B650C
+      - LoggingCloudTrailLogsRoleE1DD6030
+      - LoggingCloudTrail44E92DB9
+      - LoggingCloudTrailAccessLogBucketPolicyE58866E2
+      - LoggingCloudTrailAccessLogBucketA7B773C8
+      - LoggingCloudTrailBucketPolicy4004472F
+      - LoggingCloudTrailBucket7560781D
+      - LoggingCloudTrailKeyAlias65A5FEEA
+      - LoggingCloudTrailKey43327553
+      - LoggingCloudTrailLogGroupEFC12822
+      - LoggingConfigBucketPolicy66A7F5E7
+      - LoggingConfigBucket139B5174
+      - LoggingConfigDeliveryChannel44B4762B
+      - LoggingConfigRecorderFC55B19F
+      - LoggingConfigRole0E4FDF1F
+    Metadata:
+      aws:cdk:path: Dev-BLEAGovBaseStandalone/Detection/DefaultSgRemediationRole/Resource
+  DetectionDefaultSgRemediationRoleDefaultPolicy87C90FDE:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Action:
+              - ec2:RevokeSecurityGroupIngress
+              - ec2:RevokeSecurityGroupEgress
+              - ec2:DescribeSecurityGroups
+            Effect: Allow
+            Resource: "*"
+          - Action: iam:PassRole
+            Effect: Allow
+            Resource:
+              Fn::GetAtt:
+                - DetectionDefaultSgRemediationRoleAEF5626C
+                - Arn
+          - Action: ssm:StartAutomationExecution
+            Effect: Allow
+            Resource: arn:aws:ssm:::automation-definition/AWSConfigRemediation-RemoveVPCDefaultSecurityGroupRules
+        Version: "2012-10-17"
+      PolicyName: DetectionDefaultSgRemediationRoleDefaultPolicy87C90FDE
+      Roles:
+        - Ref: DetectionDefaultSgRemediationRoleAEF5626C
+    DependsOn:
+      - LoggingCloudTrailLogsRoleDefaultPolicy7A5B650C
+      - LoggingCloudTrailLogsRoleE1DD6030
+      - LoggingCloudTrail44E92DB9
+      - LoggingCloudTrailAccessLogBucketPolicyE58866E2
+      - LoggingCloudTrailAccessLogBucketA7B773C8
+      - LoggingCloudTrailBucketPolicy4004472F
+      - LoggingCloudTrailBucket7560781D
+      - LoggingCloudTrailKeyAlias65A5FEEA
+      - LoggingCloudTrailKey43327553
+      - LoggingCloudTrailLogGroupEFC12822
+      - LoggingConfigBucketPolicy66A7F5E7
+      - LoggingConfigBucket139B5174
+      - LoggingConfigDeliveryChannel44B4762B
+      - LoggingConfigRecorderFC55B19F
+      - LoggingConfigRole0E4FDF1F
+    Metadata:
+      aws:cdk:path: Dev-BLEAGovBaseStandalone/Detection/DefaultSgRemediationRole/DefaultPolicy/Resource
+  DetectionDefaultSgRemediation21C0DB33:
+    Type: AWS::Config::RemediationConfiguration
+    Properties:
+      Automatic: true
+      ConfigRuleName:
+        Ref: DetectionDefaultSgClosedRuleFED7310D
+      MaximumAutomaticAttempts: 5
+      Parameters:
+        AutomationAssumeRole:
+          StaticValue:
+            Values:
+              - Fn::GetAtt:
+                  - DetectionDefaultSgRemediationRoleAEF5626C
+                  - Arn
+        GroupId:
+          ResourceValue:
+            Value: RESOURCE_ID
+      RetryAttemptSeconds: 60
+      TargetId: AWSConfigRemediation-RemoveVPCDefaultSecurityGroupRules
+      TargetType: SSM_DOCUMENT
+      TargetVersion: "1"
+    DependsOn:
+      - LoggingCloudTrailLogsRoleDefaultPolicy7A5B650C
+      - LoggingCloudTrailLogsRoleE1DD6030
+      - LoggingCloudTrail44E92DB9
+      - LoggingCloudTrailAccessLogBucketPolicyE58866E2
+      - LoggingCloudTrailAccessLogBucketA7B773C8
+      - LoggingCloudTrailBucketPolicy4004472F
+      - LoggingCloudTrailBucket7560781D
+      - LoggingCloudTrailKeyAlias65A5FEEA
+      - LoggingCloudTrailKey43327553
+      - LoggingCloudTrailLogGroupEFC12822
+      - LoggingConfigBucketPolicy66A7F5E7
+      - LoggingConfigBucket139B5174
+      - LoggingConfigDeliveryChannel44B4762B
+      - LoggingConfigRecorderFC55B19F
+      - LoggingConfigRole0E4FDF1F
+    Metadata:
+      aws:cdk:path: Dev-BLEAGovBaseStandalone/Detection/DefaultSgRemediation
+  DetectionAlarmTopic36C4BB55:
+    Type: AWS::SNS::Topic
+    DependsOn:
+      - LoggingCloudTrailLogsRoleDefaultPolicy7A5B650C
+      - LoggingCloudTrailLogsRoleE1DD6030
+      - LoggingCloudTrail44E92DB9
+      - LoggingCloudTrailAccessLogBucketPolicyE58866E2
+      - LoggingCloudTrailAccessLogBucketA7B773C8
+      - LoggingCloudTrailBucketPolicy4004472F
+      - LoggingCloudTrailBucket7560781D
+      - LoggingCloudTrailKeyAlias65A5FEEA
+      - LoggingCloudTrailKey43327553
+      - LoggingCloudTrailLogGroupEFC12822
+      - LoggingConfigBucketPolicy66A7F5E7
+      - LoggingConfigBucket139B5174
+      - LoggingConfigDeliveryChannel44B4762B
+      - LoggingConfigRecorderFC55B19F
+      - LoggingConfigRole0E4FDF1F
+    Metadata:
+      aws:cdk:path: Dev-BLEAGovBaseStandalone/Detection/AlarmTopic/Resource
+  DetectionAlarmTopicPolicyDEB08BF4:
+    Type: AWS::SNS::TopicPolicy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Action: sns:Publish
+            Effect: Allow
+            Principal:
+              Service: cloudwatch.amazonaws.com
+            Resource:
+              Ref: DetectionAlarmTopic36C4BB55
+            Sid: "0"
+          - Action: sns:Publish
+            Effect: Allow
+            Principal:
+              Service: events.amazonaws.com
+            Resource:
+              Ref: DetectionAlarmTopic36C4BB55
+            Sid: "1"
+        Version: "2012-10-17"
+      Topics:
+        - Ref: DetectionAlarmTopic36C4BB55
+    DependsOn:
+      - LoggingCloudTrailLogsRoleDefaultPolicy7A5B650C
+      - LoggingCloudTrailLogsRoleE1DD6030
+      - LoggingCloudTrail44E92DB9
+      - LoggingCloudTrailAccessLogBucketPolicyE58866E2
+      - LoggingCloudTrailAccessLogBucketA7B773C8
+      - LoggingCloudTrailBucketPolicy4004472F
+      - LoggingCloudTrailBucket7560781D
+      - LoggingCloudTrailKeyAlias65A5FEEA
+      - LoggingCloudTrailKey43327553
+      - LoggingCloudTrailLogGroupEFC12822
+      - LoggingConfigBucketPolicy66A7F5E7
+      - LoggingConfigBucket139B5174
+      - LoggingConfigDeliveryChannel44B4762B
+      - LoggingConfigRecorderFC55B19F
+      - LoggingConfigRole0E4FDF1F
+    Metadata:
+      aws:cdk:path: Dev-BLEAGovBaseStandalone/Detection/AlarmTopic/Policy/Resource
+  DetectionSecurityAlarmEmail872B09F1:
+    Type: AWS::SNS::Subscription
+    Properties:
+      Endpoint: nanbingjun@gmail.com
+      Protocol: email
+      TopicArn:
+        Ref: DetectionAlarmTopic36C4BB55
+    DependsOn:
+      - LoggingCloudTrailLogsRoleDefaultPolicy7A5B650C
+      - LoggingCloudTrailLogsRoleE1DD6030
+      - LoggingCloudTrail44E92DB9
+      - LoggingCloudTrailAccessLogBucketPolicyE58866E2
+      - LoggingCloudTrailAccessLogBucketA7B773C8
+      - LoggingCloudTrailBucketPolicy4004472F
+      - LoggingCloudTrailBucket7560781D
+      - LoggingCloudTrailKeyAlias65A5FEEA
+      - LoggingCloudTrailKey43327553
+      - LoggingCloudTrailLogGroupEFC12822
+      - LoggingConfigBucketPolicy66A7F5E7
+      - LoggingConfigBucket139B5174
+      - LoggingConfigDeliveryChannel44B4762B
+      - LoggingConfigRecorderFC55B19F
+      - LoggingConfigRole0E4FDF1F
+    Metadata:
+      aws:cdk:path: Dev-BLEAGovBaseStandalone/Detection/SecurityAlarmEmail/Resource
+  DetectionDefaultSgClosedEventRuleFB96D536:
+    Type: AWS::Events::Rule
+    Properties:
+      Description: CloudWatch Event Rule to send notification on Config Rule compliance changes.
+      EventPattern:
+        source:
+          - aws.config
+        detail-type:
+          - Config Rules Compliance Change
+        detail:
+          configRuleName:
+            - bb-default-security-group-closed
+          newEvaluationResult:
+            complianceType:
+              - NON_COMPLIANT
+      State: ENABLED
+      Targets:
+        - Arn:
+            Ref: DetectionAlarmTopic36C4BB55
+          Id: Target0
+    DependsOn:
+      - LoggingCloudTrailLogsRoleDefaultPolicy7A5B650C
+      - LoggingCloudTrailLogsRoleE1DD6030
+      - LoggingCloudTrail44E92DB9
+      - LoggingCloudTrailAccessLogBucketPolicyE58866E2
+      - LoggingCloudTrailAccessLogBucketA7B773C8
+      - LoggingCloudTrailBucketPolicy4004472F
+      - LoggingCloudTrailBucket7560781D
+      - LoggingCloudTrailKeyAlias65A5FEEA
+      - LoggingCloudTrailKey43327553
+      - LoggingCloudTrailLogGroupEFC12822
+      - LoggingConfigBucketPolicy66A7F5E7
+      - LoggingConfigBucket139B5174
+      - LoggingConfigDeliveryChannel44B4762B
+      - LoggingConfigRecorderFC55B19F
+      - LoggingConfigRole0E4FDF1F
+    Metadata:
+      aws:cdk:path: Dev-BLEAGovBaseStandalone/Detection/DefaultSgClosedEventRule/Resource
+  DetectionAwsHealthEventRule6825AFCC:
+    Type: AWS::Events::Rule
+    Properties:
+      Description: Notify AWS Health event
+      EventPattern:
+        source:
+          - aws.health
+        detail-type:
+          - AWS Health Event
+      State: ENABLED
+      Targets:
+        - Arn:
+            Ref: DetectionAlarmTopic36C4BB55
+          Id: Target0
+    DependsOn:
+      - LoggingCloudTrailLogsRoleDefaultPolicy7A5B650C
+      - LoggingCloudTrailLogsRoleE1DD6030
+      - LoggingCloudTrail44E92DB9
+      - LoggingCloudTrailAccessLogBucketPolicyE58866E2
+      - LoggingCloudTrailAccessLogBucketA7B773C8
+      - LoggingCloudTrailBucketPolicy4004472F
+      - LoggingCloudTrailBucket7560781D
+      - LoggingCloudTrailKeyAlias65A5FEEA
+      - LoggingCloudTrailKey43327553
+      - LoggingCloudTrailLogGroupEFC12822
+      - LoggingConfigBucketPolicy66A7F5E7
+      - LoggingConfigBucket139B5174
+      - LoggingConfigDeliveryChannel44B4762B
+      - LoggingConfigRecorderFC55B19F
+      - LoggingConfigRole0E4FDF1F
+    Metadata:
+      aws:cdk:path: Dev-BLEAGovBaseStandalone/Detection/AwsHealthEventRule/Resource
+  DetectionSgChangedEventRule80666B19:
+    Type: AWS::Events::Rule
+    Properties:
+      Description: Notify to create, update or delete a Security Group.
+      EventPattern:
+        source:
+          - aws.ec2
+        detail-type:
+          - AWS API Call via CloudTrail
+        detail:
+          eventSource:
+            - ec2.amazonaws.com
+          eventName:
+            - AuthorizeSecurityGroupIngress
+            - AuthorizeSecurityGroupEgress
+            - RevokeSecurityGroupIngress
+            - RevokeSecurityGroupEgress
+      State: ENABLED
+      Targets:
+        - Arn:
+            Ref: DetectionAlarmTopic36C4BB55
+          Id: Target0
+    DependsOn:
+      - LoggingCloudTrailLogsRoleDefaultPolicy7A5B650C
+      - LoggingCloudTrailLogsRoleE1DD6030
+      - LoggingCloudTrail44E92DB9
+      - LoggingCloudTrailAccessLogBucketPolicyE58866E2
+      - LoggingCloudTrailAccessLogBucketA7B773C8
+      - LoggingCloudTrailBucketPolicy4004472F
+      - LoggingCloudTrailBucket7560781D
+      - LoggingCloudTrailKeyAlias65A5FEEA
+      - LoggingCloudTrailKey43327553
+      - LoggingCloudTrailLogGroupEFC12822
+      - LoggingConfigBucketPolicy66A7F5E7
+      - LoggingConfigBucket139B5174
+      - LoggingConfigDeliveryChannel44B4762B
+      - LoggingConfigRecorderFC55B19F
+      - LoggingConfigRole0E4FDF1F
+    Metadata:
+      aws:cdk:path: Dev-BLEAGovBaseStandalone/Detection/SgChangedEventRule/Resource
+  DetectionNetworkAclChangeEventRuleE99FF49F:
+    Type: AWS::Events::Rule
+    Properties:
+      Description: Notify to create, update or delete a Network ACL.
+      EventPattern:
+        source:
+          - aws.ec2
+        detail-type:
+          - AWS API Call via CloudTrail
+        detail:
+          eventSource:
+            - ec2.amazonaws.com
+          eventName:
+            - CreateNetworkAcl
+            - CreateNetworkAclEntry
+            - DeleteNetworkAcl
+            - DeleteNetworkAclEntry
+            - ReplaceNetworkAclEntry
+            - ReplaceNetworkAclAssociation
+      State: ENABLED
+      Targets:
+        - Arn:
+            Ref: DetectionAlarmTopic36C4BB55
+          Id: Target0
+    DependsOn:
+      - LoggingCloudTrailLogsRoleDefaultPolicy7A5B650C
+      - LoggingCloudTrailLogsRoleE1DD6030
+      - LoggingCloudTrail44E92DB9
+      - LoggingCloudTrailAccessLogBucketPolicyE58866E2
+      - LoggingCloudTrailAccessLogBucketA7B773C8
+      - LoggingCloudTrailBucketPolicy4004472F
+      - LoggingCloudTrailBucket7560781D
+      - LoggingCloudTrailKeyAlias65A5FEEA
+      - LoggingCloudTrailKey43327553
+      - LoggingCloudTrailLogGroupEFC12822
+      - LoggingConfigBucketPolicy66A7F5E7
+      - LoggingConfigBucket139B5174
+      - LoggingConfigDeliveryChannel44B4762B
+      - LoggingConfigRecorderFC55B19F
+      - LoggingConfigRole0E4FDF1F
+    Metadata:
+      aws:cdk:path: Dev-BLEAGovBaseStandalone/Detection/NetworkAclChangeEventRule/Resource
+  DetectionCloudTrailChangeEventRuleA526075C:
+    Type: AWS::Events::Rule
+    Properties:
+      Description: Notify to change on CloudTrail log configuration
+      EventPattern:
+        detail-type:
+          - AWS API Call via CloudTrail
+        detail:
+          eventSource:
+            - cloudtrail.amazonaws.com
+          eventName:
+            - StopLogging
+            - DeleteTrail
+            - UpdateTrail
+      State: ENABLED
+      Targets:
+        - Arn:
+            Ref: DetectionAlarmTopic36C4BB55
+          Id: Target0
+    DependsOn:
+      - LoggingCloudTrailLogsRoleDefaultPolicy7A5B650C
+      - LoggingCloudTrailLogsRoleE1DD6030
+      - LoggingCloudTrail44E92DB9
+      - LoggingCloudTrailAccessLogBucketPolicyE58866E2
+      - LoggingCloudTrailAccessLogBucketA7B773C8
+      - LoggingCloudTrailBucketPolicy4004472F
+      - LoggingCloudTrailBucket7560781D
+      - LoggingCloudTrailKeyAlias65A5FEEA
+      - LoggingCloudTrailKey43327553
+      - LoggingCloudTrailLogGroupEFC12822
+      - LoggingConfigBucketPolicy66A7F5E7
+      - LoggingConfigBucket139B5174
+      - LoggingConfigDeliveryChannel44B4762B
+      - LoggingConfigRecorderFC55B19F
+      - LoggingConfigRole0E4FDF1F
+    Metadata:
+      aws:cdk:path: Dev-BLEAGovBaseStandalone/Detection/CloudTrailChangeEventRule/Resource
+  DetectionIAMPolicyChangeFilterA31FCC40:
+    Type: AWS::Logs::MetricFilter
+    Properties:
+      FilterPattern: "{($.eventName=DeleteGroupPolicy)||($.eventName=DeleteRolePolicy)||($.eventName=DeleteUserPolicy)||($.eventName=PutGroupPolicy)||($.eventName=PutRolePolicy)||($.eventName=PutUserPolicy)||($.eventName=CreatePolicy)||($.eventName=DeletePolicy)||($.eventName=CreatePolicyVersion)||($.eventName=DeletePolicyVersion)||($.eventName=AttachRolePolicy)||($.eventName=DetachRolePolicy)||($.eventName=AttachUserPolicy)||($.eventName=DetachUserPolicy)||($.eventName=AttachGroupPolicy)||($.eventName=DetachGroupPolicy)}"
+      LogGroupName:
+        Ref: LoggingCloudTrailLogGroupEFC12822
+      MetricTransformations:
+        - MetricName: IAMPolicyEventCount
+          MetricNamespace: CloudTrailMetrics
+          MetricValue: "1"
+    DependsOn:
+      - LoggingCloudTrailLogsRoleDefaultPolicy7A5B650C
+      - LoggingCloudTrailLogsRoleE1DD6030
+      - LoggingCloudTrail44E92DB9
+      - LoggingCloudTrailAccessLogBucketPolicyE58866E2
+      - LoggingCloudTrailAccessLogBucketA7B773C8
+      - LoggingCloudTrailBucketPolicy4004472F
+      - LoggingCloudTrailBucket7560781D
+      - LoggingCloudTrailKeyAlias65A5FEEA
+      - LoggingCloudTrailKey43327553
+      - LoggingCloudTrailLogGroupEFC12822
+      - LoggingConfigBucketPolicy66A7F5E7
+      - LoggingConfigBucket139B5174
+      - LoggingConfigDeliveryChannel44B4762B
+      - LoggingConfigRecorderFC55B19F
+      - LoggingConfigRole0E4FDF1F
+    Metadata:
+      aws:cdk:path: Dev-BLEAGovBaseStandalone/Detection/IAMPolicyChangeFilter/Resource
+  DetectionIAMPolicyChangeAlarm7DBC7A65:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      ActionsEnabled: true
+      AlarmActions:
+        - Ref: DetectionAlarmTopic36C4BB55
+      AlarmDescription: IAM Configuration changes detected!
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      DatapointsToAlarm: 1
+      EvaluationPeriods: 1
+      MetricName: IAMPolicyEventCount
+      Namespace: CloudTrailMetrics
+      Period: 300
+      Statistic: Sum
+      Threshold: 1
+    DependsOn:
+      - LoggingCloudTrailLogsRoleDefaultPolicy7A5B650C
+      - LoggingCloudTrailLogsRoleE1DD6030
+      - LoggingCloudTrail44E92DB9
+      - LoggingCloudTrailAccessLogBucketPolicyE58866E2
+      - LoggingCloudTrailAccessLogBucketA7B773C8
+      - LoggingCloudTrailBucketPolicy4004472F
+      - LoggingCloudTrailBucket7560781D
+      - LoggingCloudTrailKeyAlias65A5FEEA
+      - LoggingCloudTrailKey43327553
+      - LoggingCloudTrailLogGroupEFC12822
+      - LoggingConfigBucketPolicy66A7F5E7
+      - LoggingConfigBucket139B5174
+      - LoggingConfigDeliveryChannel44B4762B
+      - LoggingConfigRecorderFC55B19F
+      - LoggingConfigRole0E4FDF1F
+    Metadata:
+      aws:cdk:path: Dev-BLEAGovBaseStandalone/Detection/IAMPolicyChangeAlarm/Resource
+  DetectionUnauthorizedAttemptsFilterCA20EEAA:
+    Type: AWS::Logs::MetricFilter
+    Properties:
+      FilterPattern: '{($.errorCode = "*UnauthorizedOperation" || $.errorCode = "AccessDenied*") && ($.eventName != "Decrypt" || $.userIdentity.invokedBy != "config.amazonaws.com" )}'
+      LogGroupName:
+        Ref: LoggingCloudTrailLogGroupEFC12822
+      MetricTransformations:
+        - MetricName: UnauthorizedAttemptsEventCount
+          MetricNamespace: CloudTrailMetrics
+          MetricValue: "1"
+    DependsOn:
+      - LoggingCloudTrailLogsRoleDefaultPolicy7A5B650C
+      - LoggingCloudTrailLogsRoleE1DD6030
+      - LoggingCloudTrail44E92DB9
+      - LoggingCloudTrailAccessLogBucketPolicyE58866E2
+      - LoggingCloudTrailAccessLogBucketA7B773C8
+      - LoggingCloudTrailBucketPolicy4004472F
+      - LoggingCloudTrailBucket7560781D
+      - LoggingCloudTrailKeyAlias65A5FEEA
+      - LoggingCloudTrailKey43327553
+      - LoggingCloudTrailLogGroupEFC12822
+      - LoggingConfigBucketPolicy66A7F5E7
+      - LoggingConfigBucket139B5174
+      - LoggingConfigDeliveryChannel44B4762B
+      - LoggingConfigRecorderFC55B19F
+      - LoggingConfigRole0E4FDF1F
+    Metadata:
+      aws:cdk:path: Dev-BLEAGovBaseStandalone/Detection/UnauthorizedAttemptsFilter/Resource
+  DetectionUnauthorizedAttemptsAlarmB897676B:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      ActionsEnabled: true
+      AlarmActions:
+        - Ref: DetectionAlarmTopic36C4BB55
+      AlarmDescription: Multiple unauthorized actions or logins attempted!
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      DatapointsToAlarm: 1
+      EvaluationPeriods: 1
+      MetricName: UnauthorizedAttemptsEventCount
+      Namespace: CloudTrailMetrics
+      Period: 300
+      Statistic: Sum
+      Threshold: 5
+    DependsOn:
+      - LoggingCloudTrailLogsRoleDefaultPolicy7A5B650C
+      - LoggingCloudTrailLogsRoleE1DD6030
+      - LoggingCloudTrail44E92DB9
+      - LoggingCloudTrailAccessLogBucketPolicyE58866E2
+      - LoggingCloudTrailAccessLogBucketA7B773C8
+      - LoggingCloudTrailBucketPolicy4004472F
+      - LoggingCloudTrailBucket7560781D
+      - LoggingCloudTrailKeyAlias65A5FEEA
+      - LoggingCloudTrailKey43327553
+      - LoggingCloudTrailLogGroupEFC12822
+      - LoggingConfigBucketPolicy66A7F5E7
+      - LoggingConfigBucket139B5174
+      - LoggingConfigDeliveryChannel44B4762B
+      - LoggingConfigRecorderFC55B19F
+      - LoggingConfigRole0E4FDF1F
+    Metadata:
+      aws:cdk:path: Dev-BLEAGovBaseStandalone/Detection/UnauthorizedAttemptsAlarm/Resource
+  DetectionNewAccessKeyCreatedFilter011F7D99:
+    Type: AWS::Logs::MetricFilter
+    Properties:
+      FilterPattern: "{($.eventName=CreateAccessKey)}"
+      LogGroupName:
+        Ref: LoggingCloudTrailLogGroupEFC12822
+      MetricTransformations:
+        - MetricName: NewAccessKeyCreatedEventCount
+          MetricNamespace: CloudTrailMetrics
+          MetricValue: "1"
+    DependsOn:
+      - LoggingCloudTrailLogsRoleDefaultPolicy7A5B650C
+      - LoggingCloudTrailLogsRoleE1DD6030
+      - LoggingCloudTrail44E92DB9
+      - LoggingCloudTrailAccessLogBucketPolicyE58866E2
+      - LoggingCloudTrailAccessLogBucketA7B773C8
+      - LoggingCloudTrailBucketPolicy4004472F
+      - LoggingCloudTrailBucket7560781D
+      - LoggingCloudTrailKeyAlias65A5FEEA
+      - LoggingCloudTrailKey43327553
+      - LoggingCloudTrailLogGroupEFC12822
+      - LoggingConfigBucketPolicy66A7F5E7
+      - LoggingConfigBucket139B5174
+      - LoggingConfigDeliveryChannel44B4762B
+      - LoggingConfigRecorderFC55B19F
+      - LoggingConfigRole0E4FDF1F
+    Metadata:
+      aws:cdk:path: Dev-BLEAGovBaseStandalone/Detection/NewAccessKeyCreatedFilter/Resource
+  DetectionNewAccessKeyCreatedAlarm00969636:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      ActionsEnabled: true
+      AlarmActions:
+        - Ref: DetectionAlarmTopic36C4BB55
+      AlarmDescription: "Warning: New IAM access Eey was created. Please be sure this action was neccessary."
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      DatapointsToAlarm: 1
+      EvaluationPeriods: 1
+      MetricName: NewAccessKeyCreatedEventCount
+      Namespace: CloudTrailMetrics
+      Period: 300
+      Statistic: Sum
+      Threshold: 1
+    DependsOn:
+      - LoggingCloudTrailLogsRoleDefaultPolicy7A5B650C
+      - LoggingCloudTrailLogsRoleE1DD6030
+      - LoggingCloudTrail44E92DB9
+      - LoggingCloudTrailAccessLogBucketPolicyE58866E2
+      - LoggingCloudTrailAccessLogBucketA7B773C8
+      - LoggingCloudTrailBucketPolicy4004472F
+      - LoggingCloudTrailBucket7560781D
+      - LoggingCloudTrailKeyAlias65A5FEEA
+      - LoggingCloudTrailKey43327553
+      - LoggingCloudTrailLogGroupEFC12822
+      - LoggingConfigBucketPolicy66A7F5E7
+      - LoggingConfigBucket139B5174
+      - LoggingConfigDeliveryChannel44B4762B
+      - LoggingConfigRecorderFC55B19F
+      - LoggingConfigRole0E4FDF1F
+    Metadata:
+      aws:cdk:path: Dev-BLEAGovBaseStandalone/Detection/NewAccessKeyCreatedAlarm/Resource
+  DetectionRootUserActivityFilter5C9C4989:
+    Type: AWS::Logs::MetricFilter
+    Properties:
+      FilterPattern: '{$.userIdentity.type="Root" && $.userIdentity.invokedBy NOT EXISTS && $.eventType !="AwsServiceEvent"}'
+      LogGroupName:
+        Ref: LoggingCloudTrailLogGroupEFC12822
+      MetricTransformations:
+        - MetricName: RootUserPolicyEventCount
+          MetricNamespace: CloudTrailMetrics
+          MetricValue: "1"
+    DependsOn:
+      - LoggingCloudTrailLogsRoleDefaultPolicy7A5B650C
+      - LoggingCloudTrailLogsRoleE1DD6030
+      - LoggingCloudTrail44E92DB9
+      - LoggingCloudTrailAccessLogBucketPolicyE58866E2
+      - LoggingCloudTrailAccessLogBucketA7B773C8
+      - LoggingCloudTrailBucketPolicy4004472F
+      - LoggingCloudTrailBucket7560781D
+      - LoggingCloudTrailKeyAlias65A5FEEA
+      - LoggingCloudTrailKey43327553
+      - LoggingCloudTrailLogGroupEFC12822
+      - LoggingConfigBucketPolicy66A7F5E7
+      - LoggingConfigBucket139B5174
+      - LoggingConfigDeliveryChannel44B4762B
+      - LoggingConfigRecorderFC55B19F
+      - LoggingConfigRole0E4FDF1F
+    Metadata:
+      aws:cdk:path: Dev-BLEAGovBaseStandalone/Detection/RootUserActivityFilter/Resource
+  DetectionRootUserActivityAlarm4B9356FC:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      ActionsEnabled: true
+      AlarmActions:
+        - Ref: DetectionAlarmTopic36C4BB55
+      AlarmDescription: Root user activity detected!
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      DatapointsToAlarm: 1
+      EvaluationPeriods: 1
+      MetricName: RootUserPolicyEventCount
+      Namespace: CloudTrailMetrics
+      Period: 300
+      Statistic: Sum
+      Threshold: 1
+    DependsOn:
+      - LoggingCloudTrailLogsRoleDefaultPolicy7A5B650C
+      - LoggingCloudTrailLogsRoleE1DD6030
+      - LoggingCloudTrail44E92DB9
+      - LoggingCloudTrailAccessLogBucketPolicyE58866E2
+      - LoggingCloudTrailAccessLogBucketA7B773C8
+      - LoggingCloudTrailBucketPolicy4004472F
+      - LoggingCloudTrailBucket7560781D
+      - LoggingCloudTrailKeyAlias65A5FEEA
+      - LoggingCloudTrailKey43327553
+      - LoggingCloudTrailLogGroupEFC12822
+      - LoggingConfigBucketPolicy66A7F5E7
+      - LoggingConfigBucket139B5174
+      - LoggingConfigDeliveryChannel44B4762B
+      - LoggingConfigRecorderFC55B19F
+      - LoggingConfigRole0E4FDF1F
+    Metadata:
+      aws:cdk:path: Dev-BLEAGovBaseStandalone/Detection/RootUserActivityAlarm/Resource
+  DetectionSecurityHubEventRule95BEBD4F:
+    Type: AWS::Events::Rule
+    Properties:
+      Description: CloudWatch Event Rule to send notification on SecurityHub all new findings and all updates.
+      EventPattern:
+        source:
+          - aws.securityhub
+        detail-type:
+          - Security Hub Findings - Imported
+        detail:
+          findings:
+            Severity:
+              Label:
+                - CRITICAL
+                - HIGH
+            Compliance:
+              Status:
+                - FAILED
+            Workflow:
+              Status:
+                - NEW
+                - NOTIFIED
+            RecordState:
+              - ACTIVE
+      State: ENABLED
+      Targets:
+        - Arn:
+            Ref: DetectionAlarmTopic36C4BB55
+          Id: Target0
+    DependsOn:
+      - LoggingCloudTrailLogsRoleDefaultPolicy7A5B650C
+      - LoggingCloudTrailLogsRoleE1DD6030
+      - LoggingCloudTrail44E92DB9
+      - LoggingCloudTrailAccessLogBucketPolicyE58866E2
+      - LoggingCloudTrailAccessLogBucketA7B773C8
+      - LoggingCloudTrailBucketPolicy4004472F
+      - LoggingCloudTrailBucket7560781D
+      - LoggingCloudTrailKeyAlias65A5FEEA
+      - LoggingCloudTrailKey43327553
+      - LoggingCloudTrailLogGroupEFC12822
+      - LoggingConfigBucketPolicy66A7F5E7
+      - LoggingConfigBucket139B5174
+      - LoggingConfigDeliveryChannel44B4762B
+      - LoggingConfigRecorderFC55B19F
+      - LoggingConfigRole0E4FDF1F
+    Metadata:
+      aws:cdk:path: Dev-BLEAGovBaseStandalone/Detection/SecurityHubEventRule/Resource
+  DetectionGuardDutyEventRule60AAD2D7:
+    Type: AWS::Events::Rule
+    Properties:
+      Description: CloudWatch Event Rule to send notification on GuardDuty findings.
+      EventPattern:
+        source:
+          - aws.guardduty
+        detail-type:
+          - GuardDuty Finding
+        detail:
+          severity:
+            - 4
+            - 4
+            - 4.1
+            - 4.2
+            - 4.3
+            - 4.4
+            - 4.5
+            - 4.6
+            - 4.7
+            - 4.8
+            - 4.9
+            - 5
+            - 5
+            - 5.1
+            - 5.2
+            - 5.3
+            - 5.4
+            - 5.5
+            - 5.6
+            - 5.7
+            - 5.8
+            - 5.9
+            - 6
+            - 6
+            - 6.1
+            - 6.2
+            - 6.3
+            - 6.4
+            - 6.5
+            - 6.6
+            - 6.7
+            - 6.8
+            - 6.9
+            - 7
+            - 7
+            - 7.1
+            - 7.2
+            - 7.3
+            - 7.4
+            - 7.5
+            - 7.6
+            - 7.7
+            - 7.8
+            - 7.9
+            - 8
+            - 8
+            - 8.1
+            - 8.2
+            - 8.3
+            - 8.4
+            - 8.5
+            - 8.6
+            - 8.7
+            - 8.8
+            - 8.9
+      State: ENABLED
+      Targets:
+        - Arn:
+            Ref: DetectionAlarmTopic36C4BB55
+          Id: Target0
+    DependsOn:
+      - LoggingCloudTrailLogsRoleDefaultPolicy7A5B650C
+      - LoggingCloudTrailLogsRoleE1DD6030
+      - LoggingCloudTrail44E92DB9
+      - LoggingCloudTrailAccessLogBucketPolicyE58866E2
+      - LoggingCloudTrailAccessLogBucketA7B773C8
+      - LoggingCloudTrailBucketPolicy4004472F
+      - LoggingCloudTrailBucket7560781D
+      - LoggingCloudTrailKeyAlias65A5FEEA
+      - LoggingCloudTrailKey43327553
+      - LoggingCloudTrailLogGroupEFC12822
+      - LoggingConfigBucketPolicy66A7F5E7
+      - LoggingConfigBucket139B5174
+      - LoggingConfigDeliveryChannel44B4762B
+      - LoggingConfigRecorderFC55B19F
+      - LoggingConfigRole0E4FDF1F
+    Metadata:
+      aws:cdk:path: Dev-BLEAGovBaseStandalone/Detection/GuardDutyEventRule/Resource
+  NotificationChatbotRole9B60F7B3:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: chatbot.amazonaws.com
+        Version: "2012-10-17"
+      ManagedPolicyArns:
+        - Fn::Join:
+            - ""
+            - - "arn:"
+              - Ref: AWS::Partition
+              - :iam::aws:policy/ReadOnlyAccess
+        - Fn::Join:
+            - ""
+            - - "arn:"
+              - Ref: AWS::Partition
+              - :iam::aws:policy/CloudWatchReadOnlyAccess
+    Metadata:
+      aws:cdk:path: Dev-BLEAGovBaseStandalone/Notification/ChatbotRole/Resource
+  NotificationChatbotChannel053BCEF2:
+    Type: AWS::Chatbot::SlackChannelConfiguration
+    Properties:
+      ConfigurationName: DevBLEAGovBaseStandaloneNotificationE370FB6B
+      IamRoleArn:
+        Fn::GetAtt:
+          - NotificationChatbotRole9B60F7B3
+          - Arn
+      SlackChannelId: C048Q97BYHG
+      SlackWorkspaceId: T0469K9DY21
+      SnsTopicArns:
+        - Ref: DetectionAlarmTopic36C4BB55
+    Metadata:
+      aws:cdk:path: Dev-BLEAGovBaseStandalone/Notification/ChatbotChannel
+  CDKMetadata:
+    Type: AWS::CDK::Metadata
+    Properties:
+      Analytics: v2:deflate64:H4sIAAAAAAAA/11RwU4rMQz8Fu5poH16B45QBDw9EGjLHWUdd2s2m1RJ3KqK8u8oSdUWLusZJzNrTxZy/vdWzq/UPsxAjzNDvUyrqGAUah8+E6lJpldl1YD63RmCg1iu7c9G5wyWbq1P3vG2sAbOmjNaod8R4AvZEXURZRH+yHTPMGIsF46olbPukmcxTkGm/1hPSrkzpEIhFWRh3BBkenHDaaITfsXoCR7JRPR1nQueBRjHOnpFRqaPUsqVCrIAZ9c0yLRc22WF7FUkZzsE53Vze0BDO/SH5UZZi1Xd7nZsUByjq7hkhhNqqh4/DLMYWHmtOR5k9YwI0XkRENhTPGy4L/1n7kWwQaYPtyWog1ZQv+fkLumK+wCetuUv9TUueBa4QxuDTKf5uDxPjWSvImxkujPKTy1n5acsYKNi72KZZmUUjMe1f23TYXDsAZvV2vmpHnySBcMai/pfg8X6jeOWY8un6bKwTqP8Cte7xY2cz+XN1Vcgmnm2kSaUXavf6c/PpM8CAAA=
+    Metadata:
+      aws:cdk:path: Dev-BLEAGovBaseStandalone/CDKMetadata/Default
+Outputs:
+  ExportsOutputRefDetectionAlarmTopic36C4BB557D18D152:
+    Value:
+      Ref: DetectionAlarmTopic36C4BB55
+    Export:
+      Name: Dev-BLEAGovBaseStandalone:ExportsOutputRefDetectionAlarmTopic36C4BB557D18D152
+Parameters:
+  BootstrapVersion:
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /cdk-bootstrap/hnb659fds/version
+    Description: Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]
+
